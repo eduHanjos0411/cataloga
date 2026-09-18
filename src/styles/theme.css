@@ -1,0 +1,53 @@
+:root {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #1d2b24;
+  background: #f5f7f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-shell.light {
+  --bg: #f5f7f5;
+  --bg-elevated: #eef3ee;
+  --panel: #ffffff;
+  --panel-alt: #f4f7f4;
+  --border: #dfe7df;
+  --text: #1d2b24;
+  --muted: #5b6d65;
+  --accent: #4f9d69;
+  --accent-strong: #2b7d4a;
+  --accent-soft: rgba(79, 157, 105, 0.12);
+  --shadow: 0 16px 38px rgba(18, 31, 24, 0.08);
+  --focus: rgba(79, 157, 105, 0.25);
+}
+
+.app-shell.dark {
+  --bg: #0d1411;
+  --bg-elevated: #121b17;
+  --panel: #151d1a;
+  --panel-alt: #1a2522;
+  --border: #2a3a35;
+  --text: #edf6ef;
+  --muted: #a7b8b0;
+  --accent: #67c987;
+  --accent-strong: #8dd7a4;
+  --accent-soft: rgba(103, 201, 135, 0.14);
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+  --focus: rgba(103, 201, 135, 0.3);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
