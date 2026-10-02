@@ -16,12 +16,25 @@ export const PROVIDER_LABELS: Record<Provider, string> = {
 // Campos do formulário que podem ser completados por outro provedor
 const FILLABLE_FIELDS = ["title", "authors", "publisher", "year", "pageCount"] as const;
 
-type FillableField = (typeof FILLABLE_FIELDS)[number];
+// Campos complementares: não disparam o fallback, mas são aproveitados quando
+// outro provedor já precisou ser consultado
+const OPTIONAL_FIELDS = [
+  "subtitle",
+  "location",
+  "synopsis",
+  "subjects",
+  "height",
+  "format",
+  "price",
+  "coverUrl",
+] as const;
+
+type FillableField = (typeof FILLABLE_FIELDS)[number] | (typeof OPTIONAL_FIELDS)[number];
 
 function isFieldEmpty(book: BookFormState, field: FillableField): boolean {
   const value = book[field];
-  if (field === "pageCount") return !value;
-  return typeof value !== "string" || value.trim() === "";
+  if (typeof value === "string") return value.trim() === "";
+  return !value;
 }
 
 function getMissingFields(book: BookFormState): FillableField[] {
@@ -78,8 +91,13 @@ export async function fetchBookData(isbn: string, provider?: Provider): Promise<
     const filled = missingFields.filter((field) => !isFieldEmpty(fallbackBook, field));
     if (filled.length === 0) continue;
 
+    const current = result;
+    const filledOptional = OPTIONAL_FIELDS.filter(
+      (field) => isFieldEmpty(current, field) && !isFieldEmpty(fallbackBook, field),
+    );
+
     result = { ...result };
-    for (const field of filled) {
+    for (const field of [...filled, ...filledOptional]) {
       Object.assign(result, { [field]: fallbackBook[field] });
     }
     result.provider = `${result.provider} + ${fallbackBook.provider}`;

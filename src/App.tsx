@@ -3,6 +3,7 @@ import "./App.css";
 import "./styles/theme.css";
 import { fetchBookData, PROVIDER_LABELS, PROVIDERS, type Provider } from "./api";
 import { formatIsbn, type BookFormState } from "./utils/bookUtils";
+import { exportToMarc } from "./utils/marcUtils";
 
 type ThemeName = "light" | "dark";
 
@@ -50,6 +51,21 @@ function App() {
     }
 
     setBookData(result);
+  }
+
+  function handleExport() {
+    if (!bookData) return;
+
+    const marc = exportToMarc(bookData);
+    const blob = new Blob([marc], { type: "application/marc" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${formatIsbn(bookData.isbn) || "registro"}.mrc`;
+    link.click();
+
+    URL.revokeObjectURL(url);
   }
 
   function handleClear() {
@@ -127,13 +143,28 @@ function App() {
             <section className="panel review-panel">
               <div className="review-header">
                 <h2>Revisão dos dados</h2>
-                <span className="status-tag">Pronto para editar</span>
+                <div className="review-actions">
+                  <span className="status-tag">Pronto para editar</span>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={handleExport}
+                    disabled={isLoading}
+                  >
+                    Exportar
+                  </button>
+                </div>
               </div>
 
               <div className="field-grid">
                 <label className="field">
                   <span>Título</span>
                   <input value={bookData.title} onChange={handleFieldChange("title")} />
+                </label>
+
+                <label className="field">
+                  <span>Subtítulo</span>
+                  <input value={bookData.subtitle ?? ""} onChange={handleFieldChange("subtitle")} />
                 </label>
 
                 <label className="field">
@@ -144,6 +175,11 @@ function App() {
                 <label className="field">
                   <span>Editora</span>
                   <input value={bookData.publisher} onChange={handleFieldChange("publisher")} />
+                </label>
+
+                <label className="field">
+                  <span>Local de publicação</span>
+                  <input value={bookData.location ?? ""} onChange={handleFieldChange("location")} />
                 </label>
 
                 <label className="field">
