@@ -13,23 +13,27 @@ export const PROVIDER_LABELS: Record<Provider, string> = {
   "google-books": "Google Books",
 };
 
-// Campos do formulário que podem ser completados por outro provedor
-const FILLABLE_FIELDS = ["title", "authors", "publisher", "year", "pageCount"] as const;
-
-// Campos complementares: não disparam o fallback, mas são aproveitados quando
-// outro provedor já precisou ser consultado
-const OPTIONAL_FIELDS = [
+// Campos que, se vazios no provedor principal, são completados pelos demais
+const FILLABLE_FIELDS = [
+  "title",
+  "authors",
+  "publisher",
+  "year",
+  "pageCount",
   "subtitle",
   "location",
   "synopsis",
-  "subjects",
   "height",
   "format",
   "price",
   "coverUrl",
 ] as const;
 
-type FillableField = (typeof FILLABLE_FIELDS)[number] | (typeof OPTIONAL_FIELDS)[number];
+type FillableField = (typeof FILLABLE_FIELDS)[number];
+
+// Etiquetas de máquina que alguns provedores misturam aos assuntos
+// (ex.: "nyt:combined-print-and-e-book-fiction=2023-07-09")
+const MACHINE_TAG = /^[\w-]+:\S*=/;
 
 function isFieldEmpty(book: BookFormState, field: FillableField): boolean {
   const value = book[field];
@@ -37,16 +41,21 @@ function isFieldEmpty(book: BookFormState, field: FillableField): boolean {
   return !value;
 }
 
-function getMissingFields(book: BookFormState): FillableField[] {
-  return FILLABLE_FIELDS.filter((field) => isFieldEmpty(book, field));
+/** União dos assuntos de todas as fontes, sem repetições (ignorando maiúsculas). */
+function mergeSubjects(books: BookFormState[]): string[] | undefined {
+  const subjects = new Map<string, string>();
+
+  for (const subject of books.flatMap((book) => book.subjects ?? [])) {
+    const key = subject.toLocaleLowerCase("pt-BR");
+    if (!MACHINE_TAG.test(subject) && !subjects.has(key)) subjects.set(key, subject);
+  }
+
+  return subjects.size > 0 ? [...subjects.values()] : undefined;
 }
 
-async function fetchFromProvider(isbn: string, provider?: Provider) {
+async function fetchFromProvider(isbn: string, provider: Provider) {
   try {
-    let url = `${BASE_URL}/${isbn}`;
-    if (provider) url += `?providers=${provider}`;
-
-    const response = await fetch(url);
+    const response = await fetch(`${BASE_URL}/${isbn}?providers=${provider}`);
 
     if (!response.ok) {
       throw new Error(`Erro na requisição: ${response.status}`);
@@ -54,54 +63,45 @@ async function fetchFromProvider(isbn: string, provider?: Provider) {
 
     return (await response.json()) as Record<string, unknown>;
   } catch (error) {
-    console.error(`Falha na busca da obra (${provider ?? "automático"}): `, error);
+    console.error(`Falha na busca da obra (${provider}): `, error);
     return null;
   }
 }
 
 /**
- * Busca a obra no provedor escolhido (ou no mais rápido, se nenhum for informado)
- * e completa os campos vazios consultando os demais provedores, em ordem.
+ * Consulta todos os provedores em paralelo e combina os resultados: o provedor
+ * escolhido (ou o primeiro da lista, no modo automático) tem prioridade, os campos
+ * vazios são completados pelos demais, em ordem, e os assuntos de todas as fontes
+ * são reunidos.
  */
 export async function fetchBookData(isbn: string, provider?: Provider): Promise<BookFormState | null> {
-  const primaryData = await fetchFromProvider(isbn, provider);
-  const book = primaryData ? normalizeBookData(primaryData, isbn) : null;
+  const priority = provider ? [provider, ...PROVIDERS.filter((item) => item !== provider)] : [...PROVIDERS];
 
-  const usedProviders = new Set<string>();
-  if (book?.provider) usedProviders.add(book.provider);
-  if (provider) usedProviders.add(provider);
+  const responses = await Promise.all(priority.map((item) => fetchFromProvider(isbn, item)));
+  const books = responses.flatMap((data, index) =>
+    data ? [normalizeBookData({ ...data, provider: data.provider ?? priority[index] }, isbn)] : [],
+  );
 
-  const fallbackProviders = PROVIDERS.filter((item) => !usedProviders.has(item));
-  let result = book;
+  const [primary, ...fallbacks] = books;
+  if (!primary) return null;
 
-  for (const fallbackProvider of fallbackProviders) {
-    const missingFields = result ? getMissingFields(result) : [...FILLABLE_FIELDS];
-    if (missingFields.length === 0) break;
+  const result: BookFormState = { ...primary };
+  const contributors = new Set([primary.provider]);
 
-    const fallbackData = await fetchFromProvider(isbn, fallbackProvider);
-    if (!fallbackData) continue;
-
-    const fallbackBook = normalizeBookData(fallbackData, isbn);
-
-    if (!result) {
-      result = fallbackBook;
-      continue;
+  for (const fallback of fallbacks) {
+    for (const field of FILLABLE_FIELDS) {
+      if (isFieldEmpty(result, field) && !isFieldEmpty(fallback, field)) {
+        Object.assign(result, { [field]: fallback[field] });
+        contributors.add(fallback.provider);
+      }
     }
-
-    const filled = missingFields.filter((field) => !isFieldEmpty(fallbackBook, field));
-    if (filled.length === 0) continue;
-
-    const current = result;
-    const filledOptional = OPTIONAL_FIELDS.filter(
-      (field) => isFieldEmpty(current, field) && !isFieldEmpty(fallbackBook, field),
-    );
-
-    result = { ...result };
-    for (const field of [...filled, ...filledOptional]) {
-      Object.assign(result, { [field]: fallbackBook[field] });
-    }
-    result.provider = `${result.provider} + ${fallbackBook.provider}`;
   }
 
+  result.subjects = mergeSubjects(books);
+  for (const book of fallbacks) {
+    if (book.subjects?.some((subject) => !MACHINE_TAG.test(subject))) contributors.add(book.provider);
+  }
+
+  result.provider = [...contributors].join(" + ");
   return result;
 }
