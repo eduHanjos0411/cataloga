@@ -1,5 +1,9 @@
+import { Buffer } from "buffer";
 import { Marc, Record, type MarcField } from "marcjs";
 import { formatIsbn, type BookFormState } from "./bookUtils";
+
+// O formatador ISO 2709 do marcjs usa o Buffer global do Node.js
+(globalThis as { Buffer?: unknown }).Buffer ??= Buffer;
 
 /*
  * Conversão dos dados da obra para um registro bibliográfico MARC 21
