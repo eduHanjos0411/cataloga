@@ -1,0 +1,18 @@
+.search-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.isbn-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}

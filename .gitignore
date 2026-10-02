@@ -7,18 +7,39 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependências e build
 node_modules
 dist
 dist-ssr
+*.tsbuildinfo
+.vite
+
+# Testes
+coverage
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
 *.local
+
+# Registros MARC exportados durante testes
+*.mrc
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code (configurações locais)
+.claude/settings.local.json
+
+# Sistema operacional (Windows / OneDrive / macOS)
+Thumbs.db
+desktop.ini
+.DS_Store

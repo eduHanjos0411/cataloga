@@ -48,6 +48,8 @@ body {
 }
 
 button,
+select,
+textarea,
 input {
   font: inherit;
 }

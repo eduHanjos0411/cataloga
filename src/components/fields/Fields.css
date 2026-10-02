@@ -1,0 +1,64 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.field > span {
+  font-size: 0.8rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  font-weight: 400;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field textarea {
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.45;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.span-1 { grid-column: span 1; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+
+@media (max-width: 820px) {
+  .field {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Telas baixas: campos mais compactos para o formulário caber sem rolagem */
+@media (min-width: 821px) and (max-height: 760px) {
+  .field {
+    gap: 2px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 0.38rem 0.7rem;
+  }
+}

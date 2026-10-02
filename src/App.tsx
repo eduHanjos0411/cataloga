@@ -1,227 +1,59 @@
-import { type ChangeEvent, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import "./styles/theme.css";
-import { fetchBookData, PROVIDER_LABELS, PROVIDERS, type Provider } from "./api";
-import { formatIsbn, type BookFormState } from "./utils/bookUtils";
+import { BookReviewPanel } from "./components/BookReviewPanel/BookReviewPanel";
+import { EmptyPanel } from "./components/EmptyPanel/EmptyPanel";
+import { Header, type ThemeName } from "./components/Header/Header";
+import { SearchPanel } from "./components/SearchPanel/SearchPanel";
+import { useBookSearch } from "./hooks/useBookSearch";
+import { formatIsbn } from "./utils/bookUtils";
+import { downloadFile } from "./utils/fileUtils";
 import { exportToMarc } from "./utils/marcUtils";
 
-type ThemeName = "light" | "dark";
-
 function App() {
-  const [isbn, setIsbn] = useState("");
   const [theme, setTheme] = useState<ThemeName>("light");
-  const [bookData, setBookData] = useState<BookFormState | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [provider, setProvider] = useState<Provider | "auto">("auto");
-
-  const handleFieldChange =
-    (field: keyof BookFormState) => (event: ChangeEvent<HTMLInputElement>) => {
-      const { value } = event.target;
-
-      setBookData((current) => {
-        if (!current) {
-          return current;
-        }
-
-        if (field === "pageCount") {
-          const pageCount = Number(value.replace(/\D/g, ""));
-          return { ...current, pageCount: pageCount > 0 ? pageCount : undefined };
-        }
-
-        return { ...current, [field]: value };
-      });
-    };
-
-  async function handleIsbnSubmit() {
-    const cleanIsbn = formatIsbn(isbn);
-
-    if (!cleanIsbn) {
-      alert("Digite um ISBN válido para consultar.");
-      return;
-    }
-
-    setIsLoading(true);
-    const result = await fetchBookData(cleanIsbn, provider === "auto" ? undefined : provider);
-    setIsLoading(false);
-
-    if (!result) {
-      setBookData(null);
-      alert("Livro não encontrado.");
-      return;
-    }
-
-    setBookData(result);
-  }
+  const { isbn, setIsbn, provider, setProvider, bookData, isLoading, searchId, search, clear, updateField } =
+    useBookSearch();
 
   function handleExport() {
     if (!bookData) return;
 
-    const marc = exportToMarc(bookData);
-    const blob = new Blob([marc], { type: "application/marc" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${formatIsbn(bookData.isbn) || "registro"}.mrc`;
-    link.click();
-
-    URL.revokeObjectURL(url);
-  }
-
-  function handleClear() {
-    setIsbn("");
-    setBookData(null);
+    const fileName = `${formatIsbn(bookData.isbn) || "registro"}.mrc`;
+    downloadFile(exportToMarc(bookData), fileName, "application/marc");
   }
 
   return (
     <div className={`app-shell ${theme}`}>
-      <div className="app-container">
-        <header className="library-header panel">
-          <div>
-            <h1>Cataloga+</h1>
-          </div>
+      <Header
+        theme={theme}
+        onToggleTheme={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
 
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-            aria-label="Alternar entre tema claro e escuro"
-          >
-            {theme === "light" ? "Tema escuro" : "Tema claro"}
-          </button>
-        </header>
+      <main className="content-grid">
+        <SearchPanel
+          isbn={isbn}
+          onIsbnChange={setIsbn}
+          provider={provider}
+          onProviderChange={setProvider}
+          isLoading={isLoading}
+          onSearch={search}
+          onClear={clear}
+          coverUrl={bookData?.coverUrl}
+          title={bookData?.title}
+        />
 
-        <main className="content-grid">
-          <section className="panel intro-panel">
-            <h2>Catalogação de obra</h2>
-            <p>
-              Insira o ISBN da obra e o sistema consultará as informações disponíveis para revisão,
-              edição e posterior registro no acervo da biblioteca.
-            </p>
-
-            <div className="isbn-input">
-              <label htmlFor="isbn" className="field-label">
-                ISBN
-              </label>
-              <div className="input-row">
-                <input
-                  id="isbn"
-                  type="text"
-                  placeholder="Digite o ISBN"
-                  value={isbn}
-                  onChange={(event) => setIsbn(event.target.value)}
-                />
-                <button type="button" className="primary-button" onClick={handleIsbnSubmit}>
-                  {isLoading ? "Buscando..." : "Buscar"}
-                </button>
-                <button type="button" className="secondary-button" onClick={handleClear}>
-                  Limpar
-                </button>
-              </div>
-            </div>
-
-            <div className="provider-picker">
-              <span className="field-label">Fonte dos dados</span>
-              <div className="provider-options" role="radiogroup" aria-label="Provedor de dados">
-                {(["auto", ...PROVIDERS] as const).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    role="radio"
-                    aria-checked={provider === option}
-                    className={`provider-option${provider === option ? " active" : ""}`}
-                    onClick={() => setProvider(option)}
-                  >
-                    {option === "auto" ? "Automático" : PROVIDER_LABELS[option]}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {bookData ? (
-            <section className="panel review-panel">
-              <div className="review-header">
-                <h2>Revisão dos dados</h2>
-                <div className="review-actions">
-                  <span className="status-tag">Pronto para editar</span>
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={handleExport}
-                    disabled={isLoading}
-                  >
-                    Exportar
-                  </button>
-                </div>
-              </div>
-
-              <div className="field-grid">
-                <label className="field">
-                  <span>Título</span>
-                  <input value={bookData.title} onChange={handleFieldChange("title")} />
-                </label>
-
-                <label className="field">
-                  <span>Subtítulo</span>
-                  <input value={bookData.subtitle ?? ""} onChange={handleFieldChange("subtitle")} />
-                </label>
-
-                <label className="field">
-                  <span>Autor(es)</span>
-                  <input value={bookData.authors} onChange={handleFieldChange("authors")} />
-                </label>
-
-                <label className="field">
-                  <span>Editora</span>
-                  <input value={bookData.publisher} onChange={handleFieldChange("publisher")} />
-                </label>
-
-                <label className="field">
-                  <span>Local de publicação</span>
-                  <input value={bookData.location ?? ""} onChange={handleFieldChange("location")} />
-                </label>
-
-                <label className="field">
-                  <span>Ano</span>
-                  <input value={bookData.year} onChange={handleFieldChange("year")} />
-                </label>
-
-                <label className="field">
-                  <span>Provedor</span>
-                  <input value={bookData.provider} onChange={handleFieldChange("provider")} />
-                </label>
-
-                <label className="field">
-                  <span>ISBN</span>
-                  <input value={bookData.isbn} onChange={handleFieldChange("isbn")} />
-                </label>
-
-                <label className="field">
-                  <span>Número de páginas</span>
-                  <input
-                    inputMode="numeric"
-                    value={bookData.pageCount ?? ""}
-                    onChange={handleFieldChange("pageCount")}
-                  />
-                </label>
-              </div>
-            </section>
-          ) : (
-            <section className="panel empty-panel">
-              <h2>Sem dados consultados</h2>
-              <p>
-                Os dados da obra aparecerão aqui após a busca por ISBN para que possam ser revisados e
-                ajustados manualmente.
-              </p>
-              <div className="placeholder-card">
-                <span className="placeholder-icon">📚</span>
-                <p>Acervo em espera</p>
-              </div>
-            </section>
-          )}
-        </main>
-      </div>
+        {bookData ? (
+          <BookReviewPanel
+            key={searchId}
+            book={bookData}
+            onFieldChange={updateField}
+            onExport={handleExport}
+            isExportDisabled={isLoading}
+          />
+        ) : (
+          <EmptyPanel />
+        )}
+      </main>
     </div>
   );
 }
