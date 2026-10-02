@@ -1,8 +1,8 @@
 import { type ChangeEvent, useState } from "react";
 import "./App.css";
 import "./styles/theme.css";
-import { fetchBookData } from "./api";
-import { formatIsbn, normalizeBookData, type BookFormState } from "./utils/bookUtils";
+import { fetchBookData, PROVIDER_LABELS, PROVIDERS, type Provider } from "./api";
+import { formatIsbn, type BookFormState } from "./utils/bookUtils";
 
 type ThemeName = "light" | "dark";
 
@@ -11,6 +11,7 @@ function App() {
   const [theme, setTheme] = useState<ThemeName>("light");
   const [bookData, setBookData] = useState<BookFormState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [provider, setProvider] = useState<Provider | "auto">("auto");
 
   const handleFieldChange =
     (field: keyof BookFormState) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +20,11 @@ function App() {
       setBookData((current) => {
         if (!current) {
           return current;
+        }
+
+        if (field === "pageCount") {
+          const pageCount = Number(value.replace(/\D/g, ""));
+          return { ...current, pageCount: pageCount > 0 ? pageCount : undefined };
         }
 
         return { ...current, [field]: value };
@@ -34,7 +40,7 @@ function App() {
     }
 
     setIsLoading(true);
-    const result = await fetchBookData(cleanIsbn);
+    const result = await fetchBookData(cleanIsbn, provider === "auto" ? undefined : provider);
     setIsLoading(false);
 
     if (!result) {
@@ -43,7 +49,7 @@ function App() {
       return;
     }
 
-    setBookData(normalizeBookData(result, cleanIsbn));
+    setBookData(result);
   }
 
   function handleClear() {
@@ -97,6 +103,24 @@ function App() {
                 </button>
               </div>
             </div>
+
+            <div className="provider-picker">
+              <span className="field-label">Fonte dos dados</span>
+              <div className="provider-options" role="radiogroup" aria-label="Provedor de dados">
+                {(["auto", ...PROVIDERS] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    role="radio"
+                    aria-checked={provider === option}
+                    className={`provider-option${provider === option ? " active" : ""}`}
+                    onClick={() => setProvider(option)}
+                  >
+                    {option === "auto" ? "Automático" : PROVIDER_LABELS[option]}
+                  </button>
+                ))}
+              </div>
+            </div>
           </section>
 
           {bookData ? (
@@ -135,6 +159,15 @@ function App() {
                 <label className="field">
                   <span>ISBN</span>
                   <input value={bookData.isbn} onChange={handleFieldChange("isbn")} />
+                </label>
+
+                <label className="field">
+                  <span>Número de páginas</span>
+                  <input
+                    inputMode="numeric"
+                    value={bookData.pageCount ?? ""}
+                    onChange={handleFieldChange("pageCount")}
+                  />
                 </label>
               </div>
             </section>
