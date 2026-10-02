@@ -37,9 +37,14 @@ export function SearchPanel({
       <div>
         <h2>Catalogação de obra</h2>
         <p className="panel-description">
-          Insira o ISBN e o sistema consultará os dados disponíveis para revisão e registro no acervo.
+          Insira o ISBN para buscar os dados da obra em fontes públicas e gerar o registro MARC (.mrc).
         </p>
       </div>
+
+      <p className="review-notice" role="note">
+        Os dados encontrados servem como ponto de partida e podem estar incompletos ou incorretos.
+        Revise todos os campos com o livro em mãos antes de exportar.
+      </p>
 
       <form className="isbn-input" onSubmit={handleSubmit}>
         <label htmlFor="isbn" className="field-label">
