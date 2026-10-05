@@ -53,18 +53,30 @@ function mergeSubjects(books: BookFormState[]): string[] | undefined {
   return subjects.size > 0 ? [...subjects.values()] : undefined;
 }
 
-async function fetchFromProvider(isbn: string, provider: Provider) {
+type ProviderResponse =
+  | { status: "found"; data: Record<string, unknown> }
+  | { status: "not-found" | "invalid-isbn" | "error" };
+
+export type BookSearchResult =
+  | { status: "found"; book: BookFormState }
+  | { status: "not-found" | "invalid-isbn" | "unavailable" };
+
+async function fetchFromProvider(isbn: string, provider: Provider): Promise<ProviderResponse> {
   try {
     const response = await fetch(`${BASE_URL}/${isbn}?providers=${provider}`);
+
+    // 404 e 400 são respostas esperadas da BrasilAPI ("ISBN não encontrado" e "ISBN inválido")
+    if (response.status === 404) return { status: "not-found" };
+    if (response.status === 400) return { status: "invalid-isbn" };
 
     if (!response.ok) {
       throw new Error(`Erro na requisição: ${response.status}`);
     }
 
-    return (await response.json()) as Record<string, unknown>;
+    return { status: "found", data: (await response.json()) as Record<string, unknown> };
   } catch (error) {
     console.error(`Falha na busca da obra (${provider}): `, error);
-    return null;
+    return { status: "error" };
   }
 }
 
@@ -73,17 +85,26 @@ async function fetchFromProvider(isbn: string, provider: Provider) {
  * escolhido (ou o primeiro da lista, no modo automático) tem prioridade, os campos
  * vazios são completados pelos demais, em ordem, e os assuntos de todas as fontes
  * são reunidos.
+ *
+ * Sem resultados, informa o motivo: ISBN recusado pela API, obra não encontrada em
+ * nenhum provedor, ou falha em algum provedor que impediu a confirmação.
  */
-export async function fetchBookData(isbn: string, provider?: Provider): Promise<BookFormState | null> {
+export async function fetchBookData(isbn: string, provider?: Provider): Promise<BookSearchResult> {
   const priority = provider ? [provider, ...PROVIDERS.filter((item) => item !== provider)] : [...PROVIDERS];
 
   const responses = await Promise.all(priority.map((item) => fetchFromProvider(isbn, item)));
-  const books = responses.flatMap((data, index) =>
-    data ? [normalizeBookData({ ...data, provider: data.provider ?? priority[index] }, isbn)] : [],
+  const books = responses.flatMap((response, index) =>
+    response.status === "found"
+      ? [normalizeBookData({ ...response.data, provider: response.data.provider ?? priority[index] }, isbn)]
+      : [],
   );
 
   const [primary, ...fallbacks] = books;
-  if (!primary) return null;
+  if (!primary) {
+    if (responses.some((response) => response.status === "invalid-isbn")) return { status: "invalid-isbn" };
+    if (responses.some((response) => response.status === "error")) return { status: "unavailable" };
+    return { status: "not-found" };
+  }
 
   const result: BookFormState = { ...primary };
   const contributors = new Set([primary.provider]);
@@ -103,5 +124,5 @@ export async function fetchBookData(isbn: string, provider?: Provider): Promise<
   }
 
   result.provider = [...contributors].join(" + ");
-  return result;
+  return { status: "found", book: result };
 }

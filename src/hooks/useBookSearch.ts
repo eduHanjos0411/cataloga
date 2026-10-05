@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { fetchBookData, type Provider } from "../api";
+import { fetchBookData, type BookSearchResult, type Provider } from "../api";
 import { formatIsbn, type BookFormState } from "../utils/bookUtils";
 
 export type ProviderOption = Provider | "auto";
+
+const SEARCH_ERROR_MESSAGES: Record<Exclude<BookSearchResult["status"], "found">, string> = {
+  "not-found": "Livro não encontrado.",
+  "invalid-isbn": "ISBN inválido. Confira os dígitos digitados.",
+  unavailable: "Não foi possível consultar todos os provedores. Tente novamente em instantes.",
+};
 
 export function useBookSearch() {
   const [isbn, setIsbn] = useState("");
@@ -24,13 +30,13 @@ export function useBookSearch() {
     const result = await fetchBookData(cleanIsbn, provider === "auto" ? undefined : provider);
     setIsLoading(false);
 
-    if (!result) {
+    if (result.status !== "found") {
       setBookData(null);
-      alert("Livro não encontrado.");
+      alert(SEARCH_ERROR_MESSAGES[result.status]);
       return;
     }
 
-    setBookData(result);
+    setBookData(result.book);
     setSearchId((current) => current + 1);
   }
 

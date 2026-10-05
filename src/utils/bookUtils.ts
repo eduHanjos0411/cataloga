@@ -17,8 +17,12 @@ export type BookFormState = {
   coverUrl?: string;
 };
 
+/** Mantém apenas os dígitos e o "X" final do ISBN-10 (dígito verificador 10). */
 export function formatIsbn(isbn: string): string {
-  return isbn.replace(/\D/g, "");
+  return isbn
+    .toUpperCase()
+    .replace(/[^\dX]/g, "")
+    .replace(/X(?!$)/g, "");
 }
 
 function optionalString(value: unknown): string | undefined {
