@@ -54,6 +54,7 @@
 .review-footer {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
   flex: 0 0 auto;
 }
 
@@ -70,7 +71,7 @@
     min-height: 8rem;
   }
 
-  .review-footer .primary-button {
+  .review-footer button {
     width: 100%;
   }
 }

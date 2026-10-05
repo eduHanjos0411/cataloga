@@ -1,0 +1,99 @@
+.marc-viewer {
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.marc-viewer::backdrop {
+  background: rgba(10, 18, 14, 0.55);
+}
+
+.marc-viewer-box {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 50px);
+}
+
+.marc-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.marc-viewer-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.marc-viewer-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.marc-viewer-close:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.marc-viewer-body {
+  overflow: auto;
+  padding: 12px 20px 20px;
+}
+
+.marc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.88rem;
+}
+
+.marc-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.marc-table tr:nth-child(even) {
+  background: var(--panel-alt);
+}
+
+.marc-tag {
+  width: 3.5em;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.marc-ind {
+  width: 1.2em;
+  color: var(--muted);
+  text-align: center;
+}
+
+.marc-value {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.marc-subfield + .marc-subfield {
+  margin-left: 0.6em;
+}
+
+.marc-code {
+  margin-right: 0.25em;
+  color: var(--accent);
+  font-weight: 700;
+}

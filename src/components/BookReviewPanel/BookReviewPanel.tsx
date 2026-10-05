@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { BookFormState } from "../../utils/bookUtils";
+import { MarcViewer } from "../MarcViewer/MarcViewer";
 import { ParsedField } from "../fields/ParsedField";
 import { SelectField } from "../fields/SelectField";
 import { TextAreaField } from "../fields/TextAreaField";
@@ -39,6 +41,7 @@ type BookReviewPanelProps = {
 
 export function BookReviewPanel({ book, onFieldChange, onExport, isExportDisabled }: BookReviewPanelProps) {
   const currency = book.price?.currency ?? "BRL";
+  const [isMarcViewerOpen, setIsMarcViewerOpen] = useState(false);
 
   return (
     <section className="panel review-panel">
@@ -138,10 +141,15 @@ export function BookReviewPanel({ book, onFieldChange, onExport, isExportDisable
       </div>
 
       <div className="review-footer">
+        <button type="button" className="secondary-button" onClick={() => setIsMarcViewerOpen(true)}>
+          Visualizar MARC
+        </button>
         <button type="button" className="primary-button" onClick={onExport} disabled={isExportDisabled}>
           Exportar
         </button>
       </div>
+
+      {isMarcViewerOpen && <MarcViewer book={book} onClose={() => setIsMarcViewerOpen(false)} />}
     </section>
   );
 }
