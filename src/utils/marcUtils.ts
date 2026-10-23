@@ -218,3 +218,9 @@ export function buildMarcRecord(book: BookFormState, now = new Date()): Record {
 export function exportToMarc(book: BookFormState): string {
   return Marc.format(buildMarcRecord(book), "iso2709");
 }
+
+/** Vários registros em um único arquivo .mrc: cada um termina com o terminador de registro (0x1D). */
+export function exportBatchToMarc(books: BookFormState[]): string {
+  const now = new Date();
+  return books.map((book) => Marc.format(buildMarcRecord(book, now), "iso2709")).join("");
+}

@@ -58,6 +58,11 @@
   flex: 0 0 auto;
 }
 
+/* Ação destrutiva afastada das demais */
+.review-remove {
+  margin-right: auto;
+}
+
 @media (max-width: 820px) {
   .field-grid {
     grid-template-columns: 1fr;
@@ -69,6 +74,10 @@
 
   .synopsis-field textarea {
     min-height: 8rem;
+  }
+
+  .review-footer {
+    flex-wrap: wrap;
   }
 
   .review-footer button {

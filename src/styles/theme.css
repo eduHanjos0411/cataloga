@@ -23,6 +23,7 @@
   --accent-soft: rgba(79, 157, 105, 0.12);
   --shadow: 0 16px 38px rgba(18, 31, 24, 0.08);
   --focus: rgba(79, 157, 105, 0.25);
+  --danger: #c0392b;
 }
 
 .app-shell.dark {
@@ -38,6 +39,7 @@
   --accent-soft: rgba(103, 201, 135, 0.14);
   --shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
   --focus: rgba(103, 201, 135, 0.3);
+  --danger: #ef7a6c;
 }
 
 body {

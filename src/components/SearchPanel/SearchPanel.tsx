@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import type { FormEvent, KeyboardEvent } from "react";
 import type { ProviderOption } from "../../hooks/useBookSearch";
 import { CoverPreview } from "../CoverPreview/CoverPreview";
 import { ProviderPicker } from "../ProviderPicker/ProviderPicker";
@@ -32,12 +32,21 @@ export function SearchPanel({
     onSearch();
   }
 
+  // Enter busca; Shift+Enter quebra a linha para digitar outro ISBN
+  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      onSearch();
+    }
+  }
+
   return (
     <section className="panel search-panel">
       <div>
         <h2>Catalogação de obra</h2>
         <p className="panel-description">
-          Insira o ISBN para buscar os dados da obra em fontes públicas e gerar o registro MARC (.mrc).
+          Insira um ou mais ISBNs para buscar os dados das obras em fontes públicas e gerar os registros MARC
+          (.mrc).
         </p>
       </div>
 
@@ -50,15 +59,16 @@ export function SearchPanel({
         <label htmlFor="isbn" className="field-label">
           ISBN
         </label>
-        <input
+        <textarea
           id="isbn"
-          type="text"
-          placeholder="Digite o ISBN"
+          rows={2}
+          placeholder="Digite o ISBN ou cole uma lista (um por linha)"
           value={isbn}
           onChange={(event) => onIsbnChange(event.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <div className="button-row">
-          <button type="submit" className="primary-button" disabled={isLoading}>
+          <button type="submit" className="primary-button">
             {isLoading ? "Buscando..." : "Buscar"}
           </button>
           <button type="button" className="secondary-button" onClick={onClear}>

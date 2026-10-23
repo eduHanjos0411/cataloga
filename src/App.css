@@ -26,9 +26,24 @@
   box-shadow: var(--shadow);
 }
 
-.content-grid > .panel {
+.content-grid > .panel,
+.workspace > .panel:not(.batch-pager) {
   padding: 18px 20px;
   min-width: 0;
+}
+
+/* Coluna principal: paginação do lote acima da página do documento atual */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.workspace > .panel:not(.batch-pager) {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .content-grid h2 {
@@ -48,8 +63,11 @@
   font-size: 0.85rem;
 }
 
-.isbn-input input {
+.isbn-input textarea {
   width: 100%;
+  resize: vertical;
+  min-height: 2.6rem;
+  max-height: 10rem;
   border: 1px solid var(--border);
   background: var(--panel-alt);
   color: var(--text);
@@ -58,7 +76,7 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.isbn-input input:focus {
+.isbn-input textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--focus);
@@ -113,7 +131,8 @@
     padding-block: 10px;
   }
 
-  .content-grid > .panel {
+  .content-grid > .panel,
+  .workspace > .panel:not(.batch-pager) {
     padding-block: 12px;
   }
 

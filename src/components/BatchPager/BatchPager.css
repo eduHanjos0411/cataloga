@@ -1,0 +1,119 @@
+.batch-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 10px 16px;
+}
+
+.pager-pages,
+.pager-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.pager-step,
+.pager-page {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--accent-strong);
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.pager-step {
+  padding: 0.3rem 0.7rem;
+}
+
+.pager-page {
+  position: relative;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.4rem;
+}
+
+.pager-step:hover:not(:disabled),
+.pager-page:hover {
+  background: var(--accent-soft);
+}
+
+.pager-step:disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.5;
+}
+
+.pager-page.active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Marcador de estado no canto do número da página */
+.pager-page.loading::after,
+.pager-page.error::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.pager-page.loading::after {
+  background: var(--muted);
+  animation: pager-pulse 1s ease-in-out infinite;
+}
+
+.pager-page.error {
+  color: var(--danger);
+}
+
+.pager-page.error.active {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.pager-page.error::after {
+  background: var(--danger);
+}
+
+.pager-page.error.active::after {
+  background: #ffffff;
+}
+
+.pager-gap {
+  color: var(--muted);
+  padding: 0 0.2rem;
+}
+
+.pager-summary {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-right: 4px;
+}
+
+@keyframes pager-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (max-width: 820px) {
+  .pager-actions {
+    width: 100%;
+  }
+
+  .pager-actions button {
+    flex: 1 1 auto;
+  }
+
+  .pager-summary {
+    width: 100%;
+  }
+}

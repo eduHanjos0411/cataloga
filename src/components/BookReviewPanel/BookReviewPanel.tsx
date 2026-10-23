@@ -36,10 +36,10 @@ type BookReviewPanelProps = {
   book: BookFormState;
   onFieldChange: <K extends keyof BookFormState>(field: K, value: BookFormState[K]) => void;
   onExport: () => void;
-  isExportDisabled?: boolean;
+  onRemove: () => void;
 };
 
-export function BookReviewPanel({ book, onFieldChange, onExport, isExportDisabled }: BookReviewPanelProps) {
+export function BookReviewPanel({ book, onFieldChange, onExport, onRemove }: BookReviewPanelProps) {
   const currency = book.price?.currency ?? "BRL";
   const [isMarcViewerOpen, setIsMarcViewerOpen] = useState(false);
 
@@ -141,11 +141,14 @@ export function BookReviewPanel({ book, onFieldChange, onExport, isExportDisable
       </div>
 
       <div className="review-footer">
+        <button type="button" className="secondary-button review-remove" onClick={onRemove}>
+          Remover do lote
+        </button>
         <button type="button" className="secondary-button" onClick={() => setIsMarcViewerOpen(true)}>
           Visualizar MARC
         </button>
-        <button type="button" className="primary-button" onClick={onExport} disabled={isExportDisabled}>
-          Exportar
+        <button type="button" className="primary-button" onClick={onExport}>
+          Exportar registro
         </button>
       </div>
 
