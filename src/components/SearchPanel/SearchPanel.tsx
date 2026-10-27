@@ -1,7 +1,9 @@
 import type { FormEvent, KeyboardEvent } from "react";
 import type { ProviderOption } from "../../hooks/useBookSearch";
+import type { CatalogingRules } from "../../utils/marcUtils";
 import { CoverPreview } from "../CoverPreview/CoverPreview";
 import { ProviderPicker } from "../ProviderPicker/ProviderPicker";
+import { RulesPicker } from "../RulesPicker/RulesPicker";
 import "./SearchPanel.css";
 
 type SearchPanelProps = {
@@ -9,6 +11,8 @@ type SearchPanelProps = {
   onIsbnChange: (isbn: string) => void;
   provider: ProviderOption;
   onProviderChange: (provider: ProviderOption) => void;
+  rules: CatalogingRules;
+  onRulesChange: (rules: CatalogingRules) => void;
   isLoading: boolean;
   onSearch: () => void;
   onClear: () => void;
@@ -21,6 +25,8 @@ export function SearchPanel({
   onIsbnChange,
   provider,
   onProviderChange,
+  rules,
+  onRulesChange,
   isLoading,
   onSearch,
   onClear,
@@ -59,9 +65,11 @@ export function SearchPanel({
         <label htmlFor="isbn" className="field-label">
           ISBN
         </label>
+        {/* Foco inicial no campo: o leitor de código de barras "digita" o ISBN e envia Enter */}
         <textarea
           id="isbn"
           rows={2}
+          autoFocus
           placeholder="Digite o ISBN ou cole uma lista (um por linha)"
           value={isbn}
           onChange={(event) => onIsbnChange(event.target.value)}
@@ -78,6 +86,7 @@ export function SearchPanel({
       </form>
 
       <ProviderPicker value={provider} onChange={onProviderChange} />
+      <RulesPicker value={rules} onChange={onRulesChange} />
 
       <CoverPreview url={coverUrl} title={title} />
     </section>

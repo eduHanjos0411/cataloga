@@ -14,7 +14,7 @@ export type BatchItem = {
 
 const SEARCH_ERROR_MESSAGES: Record<Exclude<BookSearchResult["status"], "found">, string> = {
   "not-found": "Livro não encontrado.",
-  "invalid-isbn": "ISBN inválido. Confira os dígitos digitados.",
+  "invalid-isbn": "ISBN inválido: o dígito verificador não confere. Confira os dígitos digitados.",
   unavailable: "Não foi possível consultar todos os provedores. Tente novamente em instantes.",
 };
 
@@ -102,14 +102,10 @@ export function useBookSearch() {
     });
   }
 
-  /** Adiciona ao lote os ISBNs digitados e busca os dados de cada um. */
-  async function search() {
+  /** Adiciona ao lote os ISBNs digitados e busca os dados de cada um. Retorna false se nenhum ISBN foi digitado. */
+  function search(): boolean {
     const isbns = parseIsbnList(isbn);
-
-    if (isbns.length === 0) {
-      alert("Digite um ISBN válido para consultar.");
-      return;
-    }
+    if (isbns.length === 0) return false;
 
     const existing = new Map(items.map((item) => [formatIsbn(item.book?.isbn ?? item.isbn), item]));
     const newItems = isbns
@@ -119,10 +115,11 @@ export function useBookSearch() {
     // ISBNs já presentes no lote não são buscados de novo; a página do primeiro é exibida
     setCurrentId(newItems[0]?.id ?? existing.get(isbns[0])?.id);
     setIsbn("");
-    if (newItems.length === 0) return;
+    if (newItems.length === 0) return true;
 
     setItems((current) => [...current, ...newItems]);
-    await searchItems(newItems);
+    void searchItems(newItems);
+    return true;
   }
 
   async function retry(id: string) {

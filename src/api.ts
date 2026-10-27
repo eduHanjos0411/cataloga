@@ -1,10 +1,16 @@
-import { normalizeBookData, type BookFormState } from "./utils/bookUtils";
+import { fetchFromBrasilApi } from "./providers/brasilApi";
+import { fetchFromGoogleBooks, GOOGLE_BOOKS_API_KEY } from "./providers/googleBooks";
+import { fetchFromOpenLibrary } from "./providers/openLibrary";
+import { isValidIsbn, normalizeBookData, type BookFormState } from "./utils/bookUtils";
 
-const BASE_URL = "https://brasilapi.com.br/api/isbn/v1";
+const ALL_PROVIDERS = ["cbl", "mercado-editorial", "open-library", "google-books"] as const;
 
-export const PROVIDERS = ["cbl", "mercado-editorial", "open-library", "google-books"] as const;
+export type Provider = (typeof ALL_PROVIDERS)[number];
 
-export type Provider = (typeof PROVIDERS)[number];
+// Google Books só entra na lista com chave de API configurada (ver providers/googleBooks.ts)
+export const PROVIDERS: readonly Provider[] = ALL_PROVIDERS.filter(
+  (provider) => provider !== "google-books" || GOOGLE_BOOKS_API_KEY,
+);
 
 export const PROVIDER_LABELS: Record<Provider, string> = {
   cbl: "CBL",
@@ -13,11 +19,26 @@ export const PROVIDER_LABELS: Record<Provider, string> = {
   "google-books": "Google Books",
 };
 
+// Cada fonte é consultada pela sua própria API (CBL e Mercado Editorial pela BrasilAPI)
+const PROVIDER_FETCHERS: Record<
+  Provider,
+  (isbn: string, signal: AbortSignal) => Promise<Record<string, unknown> | null>
+> = {
+  cbl: (isbn, signal) => fetchFromBrasilApi(isbn, "cbl", signal),
+  "mercado-editorial": (isbn, signal) => fetchFromBrasilApi(isbn, "mercado-editorial", signal),
+  "open-library": fetchFromOpenLibrary,
+  "google-books": fetchFromGoogleBooks,
+};
+
+// Tempo máximo de espera por provedor; um provedor lento não deve travar a busca
+const PROVIDER_TIMEOUT_MS = 10_000;
+
 // Campos que, se vazios no provedor principal, são completados pelos demais
 const FILLABLE_FIELDS = [
   "title",
   "authors",
   "publisher",
+  "edition",
   "year",
   "pageCount",
   "subtitle",
@@ -32,8 +53,8 @@ const FILLABLE_FIELDS = [
 type FillableField = (typeof FILLABLE_FIELDS)[number];
 
 // Etiquetas de máquina que alguns provedores misturam aos assuntos
-// (ex.: "nyt:combined-print-and-e-book-fiction=2023-07-09")
-const MACHINE_TAG = /^[\w-]+:\S*=/;
+// (ex.: "nyt:combined-print-and-e-book-fiction=2023-07-09", "series:Harry_Potter")
+const MACHINE_TAG = /^[\w-]+:\S/;
 
 function isFieldEmpty(book: BookFormState, field: FillableField): boolean {
   const value = book[field];
@@ -53,9 +74,7 @@ function mergeSubjects(books: BookFormState[]): string[] | undefined {
   return subjects.size > 0 ? [...subjects.values()] : undefined;
 }
 
-type ProviderResponse =
-  | { status: "found"; data: Record<string, unknown> }
-  | { status: "not-found" | "invalid-isbn" | "error" };
+type ProviderResponse = { status: "found"; data: Record<string, unknown> } | { status: "not-found" | "error" };
 
 export type BookSearchResult =
   | { status: "found"; book: BookFormState }
@@ -63,19 +82,10 @@ export type BookSearchResult =
 
 async function fetchFromProvider(isbn: string, provider: Provider): Promise<ProviderResponse> {
   try {
-    const response = await fetch(`${BASE_URL}/${isbn}?providers=${provider}`);
-
-    // 404 e 400 são respostas esperadas da BrasilAPI ("ISBN não encontrado" e "ISBN inválido")
-    if (response.status === 404) return { status: "not-found" };
-    if (response.status === 400) return { status: "invalid-isbn" };
-
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
-    }
-
-    return { status: "found", data: (await response.json()) as Record<string, unknown> };
-  } catch (error) {
-    console.error(`Falha na busca da obra (${provider}): `, error);
+    // Estouro do tempo limite rejeita a promessa com TimeoutError e conta como falha do provedor
+    const data = await PROVIDER_FETCHERS[provider](isbn, AbortSignal.timeout(PROVIDER_TIMEOUT_MS));
+    return data ? { status: "found", data } : { status: "not-found" };
+  } catch {
     return { status: "error" };
   }
 }
@@ -86,10 +96,12 @@ async function fetchFromProvider(isbn: string, provider: Provider): Promise<Prov
  * vazios são completados pelos demais, em ordem, e os assuntos de todas as fontes
  * são reunidos.
  *
- * Sem resultados, informa o motivo: ISBN recusado pela API, obra não encontrada em
- * nenhum provedor, ou falha em algum provedor que impediu a confirmação.
+ * Sem resultados, informa o motivo: ISBN com dígito verificador inválido, obra não
+ * encontrada em nenhum provedor, ou falha em algum provedor que impediu a confirmação.
  */
 export async function fetchBookData(isbn: string, provider?: Provider): Promise<BookSearchResult> {
+  if (!isValidIsbn(isbn)) return { status: "invalid-isbn" };
+
   const priority = provider ? [provider, ...PROVIDERS.filter((item) => item !== provider)] : [...PROVIDERS];
 
   const responses = await Promise.all(priority.map((item) => fetchFromProvider(isbn, item)));
@@ -101,7 +113,6 @@ export async function fetchBookData(isbn: string, provider?: Provider): Promise<
 
   const [primary, ...fallbacks] = books;
   if (!primary) {
-    if (responses.some((response) => response.status === "invalid-isbn")) return { status: "invalid-isbn" };
     if (responses.some((response) => response.status === "error")) return { status: "unavailable" };
     return { status: "not-found" };
   }

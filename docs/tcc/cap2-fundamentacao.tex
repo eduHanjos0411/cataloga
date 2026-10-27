@@ -1,0 +1,107 @@
+% =============================================================================
+% Capítulo 2 — Fundamentação teórica
+% Reorganizado em seções mais longas e menos subdivididas:
+%  - AACR2, RDA e ISBD tratados em uma única seção sobre códigos de catalogação;
+%  - MARC 21 e ISO 2709 juntos, com o exemplo de Dom Casmurro nos dois padrões;
+%  - SIGBs (Sophia, Pergamum, Koha, Biblivre) reunidos em uma seção, junto com
+%    Z39.50 e interoperabilidade, sem subseção por sistema;
+%  - nova seção sobre fontes de metadados na web (APIs), ponte para o Capítulo 3.
+% =============================================================================
+
+\chapter{Fundamentação teórica}
+\label{cap:fundamentacao}
+
+Este capítulo apresenta os conceitos da Biblioteconomia e da Ciência da Informação que sustentam o desenvolvimento do Cataloga+: o processo de catalogação, os códigos que orientam a descrição bibliográfica, o formato utilizado para codificar e intercambiar registros, o identificador a partir do qual a ferramenta opera e os sistemas aos quais os registros gerados se destinam.
+
+\section{O processo de catalogação}
+\label{sec:catalogacao}
+
+A catalogação pode ser compreendida como o processo responsável por representar de forma padronizada os recursos informacionais, possibilitando sua identificação, localização e recuperação dentro de um sistema \cite{mey2009}. Esse processo resulta em registros bibliográficos elaborados com base em regras previamente estabelecidas, o que garante consistência entre os registros de uma mesma instituição e interoperabilidade entre instituições diferentes. A catalogação funciona, assim, como ponte entre o acervo e o usuário: é por meio dos pontos de acesso criados no registro --- autor, título, assunto --- que o usuário encontra o recurso de que necessita \cite{svenonius2000}.
+
+No Brasil, costuma-se dividir o processo em catalogação descritiva e catalogação temática (ou de assunto). A primeira é responsável pela identificação física e formal do recurso, registrando elementos como título, indicação de responsabilidade, edição, dados de publicação e descrição física; a segunda representa o conteúdo do recurso por meio de assuntos, descritores e classificação \cite{mey2009}. O Cataloga+ atua predominantemente na catalogação descritiva, oferecendo como apoio à catalogação temática apenas os termos de assunto fornecidos pelas fontes consultadas, registrados como termos não controlados e sujeitos à revisão do bibliotecário.
+
+A catalogação é reconhecida como uma das atividades mais onerosas dos serviços técnicos de uma biblioteca \cite{tauber1954}. Para reduzir esse custo, consolidou-se a prática da catalogação cooperativa (ou catalogação por cópia), na qual uma instituição reaproveita registros produzidos por outras, como os disponibilizados pela Biblioteca Nacional ou por redes de bibliotecas, adaptando-os à sua realidade \cite{mey2009}. O reaproveitamento, porém, depende de que o registro exista em uma base acessível e de que a biblioteca disponha de meios técnicos para importá-lo. Quando essas condições não se verificam --- situação comum em bibliotecas de pequeno porte e em obras recentes ou de editoras menores --- a descrição volta a ser feita manualmente, campo a campo.
+
+Mesmo com o apoio dos sistemas informatizados, portanto, a catalogação mantém uma forte dependência de processos manuais, nos quais o bibliotecário insere, revisa e adapta os dados individualmente, tornando a atividade repetitiva e suscetível a erros humanos \cite{mey2009}. O tempo dedicado a essa tarefa reflete-se diretamente na disponibilização das obras ao público e no tempo que o profissional pode dedicar ao atendimento, o que contraria a quarta lei de \citeonline{ranganathan1931}: ``poupe o tempo do leitor''.
+
+\section{Códigos de catalogação: do AACR2 ao RDA}
+\label{sec:codigos}
+
+A padronização da descrição bibliográfica é orientada por códigos de catalogação, que estabelecem quais elementos devem compor o registro e de que forma devem ser transcritos. Por décadas, o principal código utilizado pelas bibliotecas brasileiras foi o AACR2 (\textit{Anglo-American Cataloguing Rules}, 2.\textsuperscript{a} edição), que define regras para a descrição dos recursos e para a escolha e forma dos pontos de acesso, contemplando autoria, título, edição, publicação e descrição física \cite{jsc2005}. O AACR2 incorpora a ISBD (\textit{International Standard Bibliographic Description}), padrão da IFLA que organiza a descrição em áreas e prescreve a pontuação que as separa --- por exemplo, o espaço seguido de dois-pontos que antecede o subtítulo e a barra que antecede a indicação de responsabilidade \cite{isbd2011}. Essa pontuação permite reconhecer cada elemento da descrição independentemente do idioma do registro.
+
+Concebido para o catálogo em fichas, o AACR2 mostrou limitações diante da diversidade de recursos digitais e dos catálogos em ambiente web. Como resposta, foi publicado em 2010 o RDA (\textit{Resource Description and Access}), sucessor do AACR2 \cite{rda2010}. O RDA fundamenta-se no modelo conceitual FRBR (\textit{Functional Requirements for Bibliographic Records}), que distingue as entidades obra, expressão, manifestação e item e orienta a descrição a partir das tarefas do usuário: encontrar, identificar, selecionar e obter \cite{ifla1998frbr}. Na prática da catalogação de livros, algumas diferenças entre os dois códigos são especialmente visíveis:
+
+\begin{itemize}
+    \item as abreviaturas são, em geral, substituídas por termos por extenso (``416 páginas'', e não ``416 p.''), e as abreviaturas latinas para dados desconhecidos, como \textit{[S.l.]} e \textit{[s.n.]}, dão lugar a expressões descritivas, como ``[Local de publicação não identificado]'';
+    \item a designação geral do material, acrescentada ao título no AACR2 (por exemplo, ``[recurso eletrônico]''), é substituída por três elementos independentes: tipo de conteúdo, tipo de mídia e tipo de suporte;
+    \item as funções de produção, publicação, distribuição e fabricação passam a ser registradas de forma distinta.
+\end{itemize}
+
+A transição entre os códigos, contudo, não ocorre de maneira uniforme. Parte dos SIGBs utilizados no Brasil ainda estrutura sua catalogação segundo o AACR2 e não contempla os elementos introduzidos pelo RDA. É o caso do Biblivre, software livre amplamente adotado por bibliotecas públicas e de pequeno porte no país.
+% TODO: citar a fonte (documentação do Biblivre ou resultado do teste de importação descrito no Capítulo 5).
+Por essa razão, o Cataloga+ adota o RDA como padrão, por ser o código vigente, mas permite gerar os registros também segundo o AACR2, de modo a garantir compatibilidade com os sistemas que ainda não migraram. A escolha é feita pelo bibliotecário antes da exportação.
+
+\section{O formato MARC 21 e o padrão ISO 2709}
+\label{sec:marc}
+
+Enquanto os códigos de catalogação definem \emph{o que} registrar e \emph{como} transcrever, é necessário um formato que estruture esses dados de maneira legível por computador. O formato MARC (\textit{Machine Readable Cataloging}) foi desenvolvido pela Library of Congress na década de 1960 e, em 1999, deu origem ao MARC 21, resultado da harmonização das versões estadunidense e canadense do formato \cite{loc2023}. O MARC 21 é o formato mais difundido para armazenamento e intercâmbio de registros bibliográficos e é aceito para importação pelos principais SIGBs.
+
+No MARC 21, cada elemento da descrição ocupa um campo identificado por uma etiqueta numérica de três dígitos. Os campos de controle (001 a 009) contêm dados codificados de tamanho fixo, como o número de controle (001), a data e hora da última alteração (005) e um conjunto de códigos sobre o recurso (008), que incluem data de publicação, país e idioma. Os demais campos são campos de dados, compostos por dois indicadores --- que refinam a interpretação do campo --- e por subcampos identificados por um código precedido de delimitador, convencionalmente representado por um cifrão. Assim, por exemplo, o campo 100 registra o autor principal, o 245 o título e a indicação de responsabilidade, o 250 a edição e o 300 a descrição física. O segundo indicador do campo 245 informa quantos caracteres iniciais do título devem ser desconsiderados na ordenação, de forma que ``O Alienista'' seja ordenado por ``Alienista''.
+
+As diferenças entre os códigos de catalogação refletem-se diretamente nos campos MARC utilizados. O \autoref{qua:marc-dom-casmurro} apresenta a mesma obra descrita segundo o RDA e segundo o AACR2: no primeiro, os dados de publicação ocupam o campo 264 e os tipos de conteúdo, mídia e suporte ocupam os campos 336 a 338; no segundo, a publicação é registrada no campo 260, a extensão é abreviada e os campos 336 a 338 não existem.
+
+\begin{quadro}[htb]
+    \caption{Registro de \textit{Dom Casmurro} em MARC 21 segundo o RDA e o AACR2 (simplificado)}
+    \label{qua:marc-dom-casmurro}
+    \footnotesize
+    \textbf{RDA}
+\begin{verbatim}
+100 1# $a Assis, Machado de, $d 1839-1908.
+245 10 $a Dom Casmurro / $c Machado de Assis.
+264 #1 $a Rio de Janeiro : $b Garnier, $c 1899.
+300 ## $a 256 páginas.
+336 ## $a texto $b txt $2 rdacontent
+337 ## $a não mediado $b n $2 rdamedia
+338 ## $a volume $b nc $2 rdacarrier
+\end{verbatim}
+    \textbf{AACR2}
+\begin{verbatim}
+100 1# $a Assis, Machado de, $d 1839-1908.
+245 10 $a Dom Casmurro / $c Machado de Assis.
+260 ## $a Rio de Janeiro : $b Garnier, $c 1899.
+300 ## $a 256 p.
+\end{verbatim}
+    \fonte{Elaborado pelo autor com base em \citeonline{loc2023}.}
+\end{quadro}
+
+Para que os registros MARC possam ser transferidos entre sistemas, utiliza-se a norma ISO 2709, que especifica um formato genérico de intercâmbio para registros bibliográficos sem definir o significado de seus campos, função atribuída ao formato de implementação, como o MARC 21 \cite{iso2709}. Na ISO 2709, cada registro é composto por um líder de 24 caracteres, que informa, entre outros dados, o tamanho do registro e o endereço de início dos dados; por um diretório, que lista a etiqueta, o tamanho e a posição de cada campo; e pelos campos propriamente ditos, separados por caracteres terminadores. Um arquivo com extensão \texttt{.mrc} nada mais é do que uma sequência de registros nesse formato, o que permite que um único arquivo transporte um registro ou um lote inteiro. É justamente esse arquivo que o Cataloga+ produz e que os SIGBs recebem em suas rotinas de importação.
+
+\section{O ISBN como identificador da manifestação}
+\label{sec:isbn}
+
+O ISBN (\textit{International Standard Book Number}) é um identificador numérico único atribuído a publicações monográficas, criado na década de 1970 e normalizado pela ISO \cite{isbn2017}. Desde 2007 é composto por treze dígitos, organizados em cinco elementos: o prefixo (978 ou 979), o grupo de registro, que identifica um país, região ou área linguística; o elemento do editor; o elemento da publicação; e o dígito verificador, calculado a partir dos demais para detectar erros de digitação \cite{isbn2017}. No Brasil, a atribuição do ISBN é realizada pela Câmara Brasileira do Livro (CBL), e as publicações brasileiras utilizam os grupos de registro 65 e 85 \cite{cbl2021}.
+
+À luz do modelo FRBR, o ISBN identifica uma manifestação: cada edição, formato ou reimpressão com alterações recebe um número próprio \cite{ifla1998frbr}. Essa característica torna o ISBN um ponto de partida adequado para a catalogação descritiva, que descreve justamente a manifestação que o bibliotecário tem em mãos. Além disso, sua difusão no mercado editorial faz com que os dados de uma obra estejam disponíveis em diversas bases --- de agências, editoras, livrarias e catálogos coletivos --- indexadas pelo mesmo número. É a partir dele que o Cataloga+ consulta as fontes externas, o que permite ainda identificar automaticamente, pelo grupo de registro, as publicações brasileiras e preencher os códigos de país e idioma do campo 008.
+
+\section{Sistemas Integrados de Gestão de Bibliotecas e interoperabilidade}
+\label{sec:sigb}
+
+No contexto brasileiro, as instituições que dispõem de acervos bibliográficos utilizam, de forma recorrente, sistemas informatizados para o gerenciamento de suas informações \cite{corte2002}. Os SIGBs reúnem, em módulos integrados, as atividades de aquisição, catalogação, circulação e consulta pública ao catálogo (OPAC), contribuindo para a redução de custos operacionais e para o aumento da eficiência dos serviços \cite{lancaster2004}. Há no mercado tanto soluções proprietárias, como Sophia, Pergamum e Aleph, que em geral oferecem suporte técnico especializado, quanto softwares livres, como Koha e Biblivre, caracterizados pela ausência de custos de licenciamento e pelo suporte baseado em comunidades \cite{breeding2015,tammaro2008}.
+
+Embora difiram em funcionalidades e público-alvo, esses sistemas compartilham dois aspectos relevantes para este trabalho. O primeiro é que a catalogação neles permanece, em essência, um processo manual de preenchimento de formulários, ainda que apoiado por modelos e pela importação de registros \cite{mey2009}. O segundo é que todos aceitam a importação de registros em MARC 21 no formato ISO 2709, o que torna esse formato o ponto de contato natural entre uma ferramenta externa e o catálogo da biblioteca. O Cataloga+ explora esse ponto de contato: em vez de integrar-se a um sistema específico, gera arquivos que qualquer SIGB compatível com MARC 21 pode importar.
+
+O compartilhamento de registros entre sistemas é objeto de preocupação antiga da área. Bibliotecas, arquivos e museus têm em comum a missão de preservar e difundir seus acervos, mas diferem em procedimentos, tradições e formas de descrição, o que torna sua integração um desafio \cite{marcondes2016}. Para enfrentá-lo, foram desenvolvidos padrões como o próprio formato MARC e o protocolo Z39.50, que permite a um sistema consultar e recuperar registros de catálogos remotos por meio de uma interface comum \cite{moen1998,rosetto1997}. O Z39.50 viabilizou a catalogação cooperativa entre redes de bibliotecas, mas seu uso depende de servidores configurados e de catálogos que já contenham o registro procurado. Ainda assim, a interoperabilidade nem sempre se concretiza, seja por limitações tecnológicas, seja por diferenças na adoção das normas, o que gera retrabalho e inconsistências entre registros \cite{ifla2009}.
+
+\section{Fontes de metadados bibliográficos na web}
+\label{sec:fontes}
+
+Paralelamente às redes de catalogação cooperativa, ampliou-se a oferta de metadados bibliográficos por meio de APIs públicas na web. Diferentemente dos catálogos de bibliotecas, essas fontes não são produzidas segundo códigos de catalogação, mas reúnem dados fornecidos por editoras, agências de ISBN, livrarias e comunidades de usuários, consultáveis por qualquer aplicação a partir do ISBN. Entre as fontes relevantes para o contexto brasileiro destacam-se:
+
+\begin{itemize}
+    \item a base da CBL, agência brasileira do ISBN, que reúne os dados informados pelos editores no momento do registro da publicação \cite{cbl2021};
+    \item a Open Library, catálogo aberto mantido pelo Internet Archive, que oferece dados de edições e obras, incluindo edição, número de páginas, assuntos e capas \cite{openlibrary};
+    \item o Google Books, que disponibiliza informações de catálogo e descrições de milhões de obras \cite{googlebooks};
+    \item a BrasilAPI, projeto aberto que centraliza o acesso a diversas bases de interesse público brasileiras, entre elas as da CBL e do Mercado Editorial, em uma interface única \cite{brasilapi}.
+\end{itemize}
+
+Essas fontes têm coberturas distintas e nenhuma delas é completa: uma pode conter o título e a editora de uma obra, mas não sua edição ou número de páginas, enquanto outra apresenta a situação inversa. Além disso, os dados podem conter erros, inconsistências de grafia e assuntos em idiomas diversos. Por isso, a consulta a várias fontes e a consolidação de seus resultados ampliam a completude do registro, mas não dispensam a revisão do bibliotecário, que confronta os dados recuperados com a obra em mãos e os adequa às regras de catalogação. Esse equilíbrio entre automação da coleta e controle humano da descrição constitui o princípio da catalogação assistida que orienta o Cataloga+.

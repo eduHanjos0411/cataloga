@@ -1,0 +1,85 @@
+% =============================================================================
+% Apêndices A e B — Requisitos funcionais e não funcionais (revisados)
+% Incluir dentro do ambiente de apêndices do abnTeX2:
+%   \begin{apendicesenv}
+%     \partapendices
+%     \input{apendices-requisitos}
+%   \end{apendicesenv}
+% Requer \usepackage{longtable} no preâmbulo.
+%
+% Removidos da versão anterior: RF01-03 (cadastro, autenticação, dashboard),
+% RF25 (logs); RNF03, 07, 08, 12, 13, 19, 20 (SQLite, credenciais, logs,
+% arquivo individual obrigatório, desktop/PyQt, Marc4Py).
+% Consolidados: RF04-06 -> RF01-02; RF07, 08, 20 -> RF04; RF09-10 -> RF06;
+% RF13, 14, 21 -> RF11; RF16, 22 -> RF16; RNF02 + RNF11 -> RNF02;
+% RNF04 + RNF05 -> RNF03; RNF09, 10, 21 -> RNF05; RNF14 + 15 -> RNF06.
+% RF17 (histórico) ainda não implementado: remover se não for desenvolvido.
+% =============================================================================
+
+\chapter{Quadro de requisitos funcionais}
+\label{ape:rf}
+
+\begin{longtable}{|p{0.08\textwidth}|p{0.22\textwidth}|p{0.50\textwidth}|p{0.11\textwidth}|}
+    \caption{Requisitos funcionais do Cataloga+}
+    \label{qua:rf} \\
+    \hline
+    \textbf{ID} & \textbf{Requisito} & \textbf{Descrição} & \textbf{Prioridade} \\ \hline
+    \endfirsthead
+    \hline
+    \textbf{ID} & \textbf{Requisito} & \textbf{Descrição} & \textbf{Prioridade} \\ \hline
+    \endhead
+    \hline \multicolumn{4}{r}{\textit{Continua na próxima página}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    RF01 & Informar ISBNs & O sistema deve permitir informar um ou mais ISBNs (ISBN-10 ou ISBN-13), digitados ou colados em lista, sendo cada ISBN adicionado como um documento ao lote de trabalho. & Alta \\ \hline
+    RF02 & Leitura por leitor de código de barras & O sistema deve aceitar a entrada de ISBNs por leitores de código de barras que operam como teclado, iniciando a busca automaticamente ao fim de cada leitura. & Média \\ \hline
+    RF03 & Validação do ISBN & O sistema deve conferir o dígito verificador do ISBN antes da consulta e informar quando o número for inválido. & Alta \\ \hline
+    RF04 & Consulta e consolidação em múltiplas fontes & O sistema deve consultar em paralelo as fontes bibliográficas disponíveis (CBL e Mercado Editorial, por meio da BrasilAPI; Open Library; Google Books) e consolidar os resultados em um único registro: os dados da fonte prioritária prevalecem, os campos ausentes são complementados pelas demais fontes e os assuntos de todas as fontes são reunidos, sem repetição. & Alta \\ \hline
+    RF05 & Escolha da fonte prioritária & O sistema deve permitir que o usuário escolha qual fonte terá prioridade na consolidação dos dados, ou utilize a ordem padrão. & Média \\ \hline
+    RF06 & Preenchimento automático & O sistema deve preencher automaticamente o formulário de revisão com os dados consolidados: título, subtítulo, autores, editora, local, edição, ano, páginas, altura, formato, ISBN, preço, assuntos, sinopse e capa. & Alta \\ \hline
+    RF07 & Edição dos dados & O sistema deve permitir a edição manual de todos os campos antes da exportação. & Alta \\ \hline
+    RF08 & Lote de trabalho & O sistema deve manter os documentos consultados em um lote, com navegação paginada entre eles e indicação da situação de cada um (em busca, pronto ou com erro). & Alta \\ \hline
+    RF09 & Gerenciamento do lote & O sistema deve permitir repetir a busca de um documento com erro, remover documentos e limpar o lote. & Média \\ \hline
+    RF10 & Pré-visualização do registro & O sistema deve exibir o registro MARC 21 correspondente aos dados atuais do formulário antes da exportação. & Média \\ \hline
+    RF11 & Exportação MARC 21 & O sistema deve permitir exportar cada registro em arquivo \texttt{.mrc} próprio, a partir de sua página no lote, ou exportar todos os registros prontos do lote em um único arquivo \texttt{.mrc}, contendo um registro ISO 2709 por obra. & Alta \\ \hline
+    RF12 & Padrão de descrição & O sistema deve permitir escolher o padrão de descrição dos registros gerados, RDA ou AACR2. & Alta \\ \hline
+    RF13 & Aplicação automática de regras de catalogação & O sistema deve aplicar automaticamente, na geração do registro, a pontuação ISBD, a inversão dos nomes de autores nos pontos de acesso, os caracteres desconsiderados na ordenação de títulos iniciados por artigo e os códigos de país e idioma de publicações brasileiras. & Alta \\ \hline
+    RF14 & Aviso de falha na busca & O sistema deve informar o motivo quando não houver dados para um ISBN: número inválido, obra não encontrada em nenhuma fonte ou fontes indisponíveis. & Alta \\ \hline
+    RF15 & Tempo limite das consultas & O sistema deve interromper a consulta a uma fonte que não responda dentro do tempo limite, prosseguindo com os resultados das demais. & Média \\ \hline
+    RF16 & Preservação do lote & O sistema deve preservar o lote de trabalho no navegador, de modo que ele seja recuperado ao recarregar ou reabrir a página. & Alta \\ \hline
+    RF17 & Histórico de registros exportados & O sistema deve manter no navegador o histórico dos registros exportados nos últimos 30 dias, permitindo reabri-los para edição ou nova exportação. & Média \\ \hline
+    RF18 & Mensagens da aplicação & O sistema deve informar sucesso, falha e carregamento das operações por meio de mensagens e caixas de confirmação próprias da interface. & Alta \\ \hline
+\end{longtable}
+
+\chapter{Quadro de requisitos não funcionais}
+\label{ape:rnf}
+
+\begin{longtable}{|p{0.08\textwidth}|p{0.22\textwidth}|p{0.50\textwidth}|p{0.11\textwidth}|}
+    \caption{Requisitos não funcionais do Cataloga+}
+    \label{qua:rnf} \\
+    \hline
+    \textbf{ID} & \textbf{Requisito} & \textbf{Descrição} & \textbf{Prioridade} \\ \hline
+    \endfirsthead
+    \hline
+    \textbf{ID} & \textbf{Requisito} & \textbf{Descrição} & \textbf{Prioridade} \\ \hline
+    \endhead
+    \hline \multicolumn{4}{r}{\textit{Continua na próxima página}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+
+    RNF01 & Usabilidade & A interface deve ser intuitiva e permitir que o fluxo de consulta, revisão e exportação seja concluído com poucas ações, sem necessidade de treinamento prévio. & Alta \\ \hline
+    RNF02 & Desempenho da consulta & As fontes devem ser consultadas em paralelo, com no máximo três ISBNs em consulta simultânea e tempo limite de 10 segundos por fonte. & Alta \\ \hline
+    RNF03 & Conformidade com MARC 21 e ISO 2709 & Os arquivos exportados devem seguir o formato MARC 21 para dados bibliográficos e a estrutura da norma ISO 2709. & Alta \\ \hline
+    RNF04 & Interoperabilidade com SIGBs & Os arquivos exportados devem ser importáveis em SIGBs compatíveis com MARC 21, verificado ao menos no Koha e no Biblivre. & Alta \\ \hline
+    RNF05 & Resiliência a falhas das fontes & A falha ou a ausência de resposta de uma fonte não deve impedir a obtenção dos dados disponíveis nas demais. & Alta \\ \hline
+    RNF06 & Capacidade do lote & O sistema deve suportar lotes com dezenas de documentos sem degradação perceptível da interface. & Média \\ \hline
+    RNF07 & Consistência catalográfica & Na consolidação, os dados da fonte prioritária devem prevalecer sobre os das demais, evitando a mistura de valores divergentes em um mesmo campo. & Média \\ \hline
+    RNF08 & Portabilidade & O sistema deve funcionar nas versões atuais dos principais navegadores (Chrome, Edge, Firefox e Safari) em computadores, sem instalação. & Alta \\ \hline
+    RNF09 & Arquitetura cliente & O sistema deve ser uma aplicação web executada inteiramente no navegador, sem servidor de aplicação ou banco de dados próprios. & Alta \\ \hline
+    RNF10 & Privacidade & Apenas o ISBN deve ser enviado às fontes externas; os dados do lote e as preferências devem permanecer armazenados somente no navegador do usuário. & Alta \\ \hline
+    RNF11 & Retorno visual & A interface deve indicar visualmente, para cada documento, a situação da busca e o resultado das operações de exportação. & Alta \\ \hline
+    RNF12 & Manutenibilidade & O código-fonte deve ser organizado em módulos independentes (fontes de dados, consolidação, interface e geração de registros), de forma que uma nova fonte de dados possa ser incluída sem alterar as demais partes. & Média \\ \hline
+\end{longtable}

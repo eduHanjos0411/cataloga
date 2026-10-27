@@ -1,0 +1,70 @@
+% =============================================================================
+% Capítulo 1 — Introdução
+% Revisão do texto original: o Cataloga+ passa a ser apresentado como ferramenta
+% web de apoio (complementar ao SIGB), e não como sistema de gestão de biblioteca.
+% A classificação da pesquisa (antiga seção 1.5) foi movida para o Capítulo 3.
+%
+% Sugestão de título: "CATALOGA+: ferramenta web de catalogação assistida de livros"
+% =============================================================================
+
+\chapter{Introdução}
+\label{cap:introducao}
+
+Desde os primórdios, o ser humano apresenta a necessidade de registrar e organizar informações, utilizando diferentes suportes, desde tábuas de argila até sistemas digitais de armazenamento \cite{santos2012}. Tal necessidade está intrinsecamente ligada à produção e ao uso da informação, uma vez que o registro possibilita sua preservação, recuperação e transmissão ao longo do tempo, contribuindo, desde a Antiguidade, para o surgimento de acervos organizados que culminariam na criação das primeiras bibliotecas. Ao longo do tempo, foram desenvolvidas diversas metodologias e práticas com o objetivo de aperfeiçoar o papel das bibliotecas, fortemente relacionado ao acesso e ao uso da informação. Essa perspectiva é evidenciada na primeira lei da Biblioteconomia, segundo a qual os materiais informacionais existem para serem utilizados, e não apenas armazenados \cite{ranganathan1931}. Desse modo, observa-se que essas instituições buscam continuamente garantir o acesso do público à informação, considerando que ``o que é realmente importante é que a informação chegue até ele da maneira mais eficaz, rápida e sobretudo, mais completa'' \cite{baganha2004}.
+
+Sob esse prisma, torna-se relevante compreender como as bibliotecas podem acompanhar a evolução tecnológica e integrá-la às suas atividades. Conforme destaca \citeonline[p.~34]{amaro2017}, ``desde o surgimento das primeiras bibliotecas nos impérios antigos até a atualidade, a profissão de bibliotecário vem tendo a sua evolução acompanhada pela tecnologia''. Nesse sentido, soluções digitais vêm sendo desenvolvidas com o intuito de automatizar processos e facilitar atividades cotidianas; no contexto bibliotecário, o uso dessas tecnologias mostra-se fundamental para a otimização de tarefas tradicionalmente manuais. Surgem, assim, os Sistemas Integrados de Gestão de Bibliotecas (SIGB), que apoiam a automação de processos como catalogação, empréstimo e recuperação da informação.
+
+Entretanto, diversos processos ainda são realizados de forma manual, em especial o de catalogação, caracterizando-se como atividades repetitivas, custosas e suscetíveis a erros e retrabalho. Tal cenário contrasta com a quinta lei da Biblioteconomia, que define a biblioteca como um organismo em crescimento, o qual deve acompanhar as transformações sociais e tecnológicas \cite{ranganathan1931}. Seguindo essa lógica, \citeonline{souza2016} destacam que a gestão das bibliotecas deve incorporar tecnologias capazes de atender às demandas informacionais da sociedade, uma vez que essas ferramentas contribuem para a melhoria das atividades desempenhadas pelos profissionais da informação. Ademais, considerando que a informação constitui um dos pilares da sociedade, torna-se essencial garantir seu amplo acesso, visto que ``a liberdade, a prosperidade e o desenvolvimento da sociedade [\ldots] só serão alcançados através da capacidade de cidadãos bem informados'' \cite{ifla1994}.
+
+Nessa perspectiva, a catalogação de livros, atividade praticamente diária do bibliotecário, pode ser considerada uma das etapas mais trabalhosas da rotina de uma biblioteca. Grande parte desse trabalho é realizada manualmente: consultar os dados bibliográficos da obra, inseri-los campo a campo no sistema e revisá-los, o que exige atenção constante e frequentemente gera retrabalho para corrigir erros de digitação e campos preenchidos de forma incorreta. Ocorre que boa parte desses dados já se encontra disponível em fontes externas, acessíveis a partir de um identificador único da obra, o ISBN. Entende-se, portanto, que esse se configura como um problema passível de solução por meio da tecnologia.
+
+Por conseguinte, o presente trabalho tem como objetivo desenvolver uma ferramenta web capaz de semiautomatizar a etapa inicial da catalogação descritiva de livros, recuperando dados bibliográficos a partir do ISBN e entregando ao bibliotecário um registro padronizado, pronto para ser importado no sistema já utilizado pela biblioteca. Ressalta-se que a proposta não pretende substituir o SIGB, mas atuar de forma complementar a ele, reduzindo o esforço de digitação sem eliminar a supervisão técnica do profissional. Assim, busca-se contribuir com a quarta lei da Biblioteconomia, que preconiza poupar o tempo do leitor \cite{ranganathan1931}, por meio da otimização dos processos de disponibilização da informação e do apoio ao trabalho do bibliotecário.
+
+\section{Tema}
+\label{sec:tema}
+
+A catalogação refere-se ao processo de criação de entradas para um catálogo, de acordo com um conjunto de regras que permitem ao usuário identificar quais itens estão disponíveis e onde encontrá-los \cite{raju2006}. Sob essa perspectiva, evidencia-se a necessidade de ferramentas que auxiliem o bibliotecário na correta descrição dos materiais informacionais, especialmente considerando a adoção de padrões internacionais, como os códigos de catalogação AACR2 e RDA e o formato MARC 21 \cite{loc2023}, ainda amplamente utilizado para o intercâmbio de registros bibliográficos.
+
+Nesse contexto, diversos processos tradicionalmente manuais tornam-se passíveis de automação, acompanhando as transformações tecnológicas que impactam diretamente a forma de acesso e mediação da informação \cite{baganha2004}. Ademais, a catalogação é apontada como uma das atividades mais custosas dos serviços técnicos em bibliotecas, uma vez que demanda tempo, esforço especializado e recursos humanos significativos \cite{tauber1954}. Dessa forma, o tema deste trabalho é a catalogação assistida por computador: o uso de fontes externas de metadados para acelerar a catalogação descritiva, preservando o controle do bibliotecário sobre o registro final.
+
+\section{Problema}
+\label{sec:problema}
+
+Apesar dos avanços promovidos pelos SIGBs, a catalogação bibliográfica continua sendo uma das atividades mais complexas e trabalhosas da rotina bibliotecária. A qualidade da representação descritiva dos documentos é fundamental para garantir a recuperação eficiente da informação, a organização dos acervos e a interoperabilidade entre bibliotecas. Entretanto, a inserção dos metadados bibliográficos ainda demanda significativa participação humana, exigindo que o bibliotecário consulte diferentes fontes, interprete as informações presentes na obra e preencha manualmente diversos campos de acordo com os padrões estabelecidos \cite{mey2009,oliveira2017}.
+
+Embora os SIGBs tenham informatizado grande parte das atividades das bibliotecas, muitos ainda dependem da digitação manual dos dados bibliográficos. Esse processo torna a catalogação uma tarefa repetitiva e suscetível a erros de preenchimento, inconsistências na descrição dos documentos e divergências entre registros. Além disso, a necessidade de inserir informações campo a campo aumenta o tempo necessário para disponibilizar novos materiais ao público, especialmente em instituições com equipes reduzidas ou com grande volume de obras a processar \cite{cafe2016,lancaster2004}.
+
+Uma das estratégias tradicionalmente utilizadas para minimizar esse esforço é a catalogação cooperativa, na qual registros produzidos por outras instituições são reutilizados. Contudo, o acesso a bases cooperativas nem sempre é simples ou integrado aos sistemas utilizados, exigindo buscas manuais e procedimentos adicionais de importação. Paralelamente, diversas fontes disponibilizam informações bibliográficas estruturadas por meio de APIs (\textit{Application Programming Interfaces}), permitindo a recuperação automatizada de metadados a partir do ISBN \cite{isbn2017}.
+
+Nesse contexto, identifica-se a seguinte problemática: mesmo existindo fontes capazes de fornecer automaticamente informações bibliográficas de livros, a catalogação ainda exige a digitação de dados já disponíveis em bases externas, resultando em retrabalho, maior consumo de tempo e aumento da possibilidade de erros. Surge, assim, a necessidade de um mecanismo que reúna essas fontes, converta os dados obtidos para os padrões de catalogação e os entregue em um formato que os SIGBs já sabem importar, reduzindo o esforço operacional sem eliminar a supervisão técnica do bibliotecário.
+
+\section{Objetivo geral}
+\label{sec:objetivo-geral}
+
+Desenvolver uma ferramenta web de apoio à catalogação descritiva de livros que, a partir do ISBN, recupere automaticamente dados bibliográficos em fontes externas, permita sua revisão e edição pelo bibliotecário e gere registros no formato MARC 21 (ISO 2709) para importação em Sistemas Integrados de Gestão de Bibliotecas.
+
+\subsection{Objetivos específicos}
+\label{subsec:objetivos-especificos}
+
+\begin{itemize}
+    \item Integrar múltiplas fontes de metadados bibliográficos, consolidando seus resultados em um único registro e complementando dados ausentes em uma fonte com os de outras;
+    \item Implementar a geração de registros MARC 21 no padrão ISO 2709, segundo as regras do RDA e do AACR2, com exportação individual e em lote;
+    \item Projetar uma interface centrada na revisão dos dados recuperados, que torne o processo de catalogação assistida rápido e de fácil utilização;
+    \item Verificar a compatibilidade dos registros gerados por meio de sua importação em SIGBs utilizados no Brasil;
+    \item Avaliar, junto a profissionais da Biblioteconomia, a usabilidade da ferramenta e sua contribuição para a redução do retrabalho na catalogação.
+\end{itemize}
+
+\section{Estrutura do trabalho}
+\label{sec:estrutura}
+
+% Ajustar conforme a versão final dos capítulos 4 em diante.
+Este trabalho está organizado da seguinte forma:
+
+\begin{itemize}
+    \item \textbf{Capítulo 1} --- apresenta o tema, o problema e os objetivos do trabalho, contextualizando a relação entre a atividade bibliotecária e a tecnologia;
+    \item \textbf{Capítulo 2} --- reúne a fundamentação teórica sobre catalogação descritiva, códigos de catalogação (AACR2 e RDA), o formato MARC 21 e o padrão ISO 2709, o ISBN, os SIGBs e as fontes de metadados disponíveis na web;
+    \item \textbf{Capítulo 3} --- descreve a metodologia: a classificação da pesquisa, as etapas de trabalho, a forma de gestão do desenvolvimento e as tecnologias adotadas;
+    \item \textbf{Capítulo 4} --- relata o desenvolvimento da ferramenta, da prototipação à implementação, incluindo requisitos, arquitetura e modelagem;
+    \item \textbf{Capítulo 5} --- apresenta os resultados, incluindo os testes de importação nos SIGBs e a avaliação com profissionais;
+    \item \textbf{Capítulo 6} --- traz as considerações finais e as propostas de trabalhos futuros.
+\end{itemize}

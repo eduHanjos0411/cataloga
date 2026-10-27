@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { BookFormState } from "../../utils/bookUtils";
-import { buildMarcRecord } from "../../utils/marcUtils";
+import { buildMarcRecord, RULES_LABELS, type CatalogingRules } from "../../utils/marcUtils";
 import "./MarcViewer.css";
 
 // Pré-visualização do registro MARC 21 gerado a partir dos dados atuais do formulário.
@@ -12,12 +12,13 @@ function showBlanks(value: string): string {
 
 type MarcViewerProps = {
   book: BookFormState;
+  rules: CatalogingRules;
   onClose: () => void;
 };
 
-export function MarcViewer({ book, onClose }: MarcViewerProps) {
+export function MarcViewer({ book, rules, onClose }: MarcViewerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const record = buildMarcRecord(book);
+  const record = buildMarcRecord(book, rules);
 
   useEffect(() => {
     // O StrictMode executa o efeito duas vezes; showModal falha se o diálogo já estiver aberto
@@ -34,7 +35,7 @@ export function MarcViewer({ book, onClose }: MarcViewerProps) {
     >
       <div className="marc-viewer-box">
         <header className="marc-viewer-header">
-          <h2>Registro MARC 21</h2>
+          <h2>Registro MARC 21 ({RULES_LABELS[rules]})</h2>
           <button type="button" className="marc-viewer-close" onClick={() => dialogRef.current?.close()}>
             ×
           </button>

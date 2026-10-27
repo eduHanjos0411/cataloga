@@ -1,0 +1,96 @@
+% =============================================================================
+% Capítulo 3 — Metodologia
+% Une o antigo Capítulo 3 (Ferramentas e Tecnologias) ao antigo Capítulo 4
+% (Metodologia). Recebe também a classificação da pesquisa (antiga seção 1.5).
+% Python, PyQt, Qt Designer, SQLite, Bcrypt, Marc4Py, Postman e ChatGPT saíram.
+%
+% Se o IFB exigir declaração do uso de ferramentas de IA generativa no
+% desenvolvimento ou na revisão do texto, incluir um parágrafo na seção 3.4.
+% =============================================================================
+
+\chapter{Metodologia}
+\label{cap:metodologia}
+
+Este capítulo apresenta os procedimentos metodológicos adotados no desenvolvimento do Cataloga+. Inicialmente, a pesquisa é classificada quanto à sua natureza, abordagem, objetivos e procedimentos técnicos. Em seguida, descrevem-se as etapas do trabalho, a forma de gestão do desenvolvimento e, por fim, as tecnologias empregadas na construção da ferramenta.
+
+\section{Classificação da pesquisa}
+\label{sec:classificacao}
+
+Quanto à natureza, a pesquisa é classificada como aplicada, pois tem como foco a geração de conhecimentos voltados à solução de um problema concreto \cite{gil2008}: a redução do esforço manual na catalogação descritiva de livros por meio de uma ferramenta de software.
+
+Quanto à abordagem, caracteriza-se como qualitativa, por estar voltada à compreensão e interpretação dos fenômenos relacionados ao desenvolvimento e à utilização da ferramenta proposta. Essa abordagem manifesta-se na análise das funcionalidades implementadas, da usabilidade da aplicação e de sua adequação aos objetivos estabelecidos, considerando a percepção de profissionais da área sobre a solução \cite{gil2008,creswell2014}.
+
+Quanto aos objetivos, trata-se de uma pesquisa exploratória, uma vez que busca proporcionar maior familiaridade com o problema --- o processo manual de catalogação e o uso de fontes externas de metadados para otimizá-lo --- contribuindo para o aprimoramento das ideias propostas \cite{gil2008,prodanov2013}.
+
+Quanto aos procedimentos técnicos, a pesquisa apoia-se em levantamento bibliográfico, com base em materiais já publicados sobre catalogação, padrões bibliográficos e sistemas de bibliotecas, e caracteriza-se como estudo de caso, por envolver o desenvolvimento e a análise de uma ferramenta específica em um contexto definido. Apresenta, ainda, aspectos experimentais, relacionados aos testes de importação dos registros gerados em sistemas de gestão de bibliotecas \cite{gil2008}.
+
+\section{Etapas da pesquisa}
+\label{sec:etapas}
+
+O trabalho foi conduzido nas etapas descritas a seguir, que não ocorreram de forma estritamente sequencial: os resultados de cada uma retroalimentaram as demais ao longo do desenvolvimento.
+
+\begin{enumerate}
+    \item \textbf{Levantamento bibliográfico:} estudo dos conceitos de catalogação descritiva, dos códigos AACR2 e RDA, da ISBD, do formato MARC 21, da norma ISO 2709 e do funcionamento dos SIGBs, que fundamentam o \autoref{cap:fundamentacao} e as regras implementadas na ferramenta.
+    \item \textbf{Levantamento de requisitos:} análise, realizada em conjunto com uma bibliotecária, das etapas da catalogação de livros e dos pontos em que a digitação manual gera retrabalho. Os requisitos resultantes foram revisados ao longo do projeto, à medida que o escopo da ferramenta foi delimitado como apoio complementar ao SIGB, e encontram-se nos \autoref{ape:rf} e \autoref{ape:rnf}.
+    \item \textbf{Análise das fontes de dados:} consulta às APIs bibliográficas disponíveis com um conjunto de ISBNs de obras brasileiras e estrangeiras, a fim de verificar a cobertura de cada fonte, os campos que fornecem e as falhas que apresentam, o que orientou a estratégia de consolidação dos resultados.
+    \item \textbf{Prototipação:} elaboração da interface com foco no fluxo principal de uso --- informar o ISBN, revisar os dados e exportar o registro.
+    \item \textbf{Desenvolvimento incremental:} implementação da ferramenta em ciclos curtos, cada um entregando uma funcionalidade utilizável, como a consulta às fontes, o formulário de revisão, a geração do registro MARC, a pré-visualização do registro e o processamento em lote.
+    \item \textbf{Validação técnica:} importação dos arquivos \texttt{.mrc} gerados em SIGBs utilizados no Brasil --- Koha e Biblivre --- e conferência da correspondência entre os dados exportados e os registros exibidos por esses sistemas, nos padrões RDA e AACR2.
+    \item \textbf{Avaliação com profissionais:} uso da ferramenta por bibliotecários na catalogação de um conjunto de obras, seguido de coleta de suas percepções sobre a usabilidade, a qualidade dos registros e o tempo empregado em comparação com a catalogação manual.
+\end{enumerate}
+
+\section{Gestão do desenvolvimento}
+\label{sec:kanban}
+
+O desenvolvimento foi conduzido com base nos princípios do método Kanban, abordagem ágil voltada à visualização das tarefas, à limitação do trabalho em andamento e à melhoria contínua do fluxo de trabalho \cite{anderson2010}. A escolha deve-se à sua flexibilidade e adequação a um projeto desenvolvido individualmente: diferentemente de metodologias com ciclos formais, como o Scrum, o Kanban dispensa a definição rígida de iterações e cerimônias, permitindo repriorizar as tarefas à medida que novas necessidades eram identificadas --- como ocorreu, por exemplo, com a inclusão do padrão AACR2 após a constatação de que parte dos SIGBs não suporta o RDA.
+
+As atividades foram organizadas em um quadro com as etapas ``a fazer'', ``em andamento'' e ``concluído''. O controle de versão foi realizado com Git, com mensagens de \textit{commit} padronizadas segundo a convenção \textit{Conventional Commits}, que identifica cada alteração como nova funcionalidade, correção ou manutenção e torna o histórico do repositório um registro da evolução do projeto \cite{chacon2014}.
+
+\section{Tecnologias e ferramentas}
+\label{sec:tecnologias}
+
+A proposta inicial deste trabalho previa uma aplicação de área de trabalho desenvolvida em Python, com interface em PyQt e banco de dados local SQLite. Ao longo do projeto, à medida que o escopo foi delimitado como ferramenta de apoio --- e não como sistema de gestão de biblioteca ---, optou-se por desenvolver uma aplicação web executada inteiramente no navegador. Essa decisão trouxe três vantagens principais: a ferramenta passa a ser acessada por um endereço, sem instalação, em qualquer sistema operacional; dispensa-se a manutenção de servidor e banco de dados, já que os registros definitivos são armazenados pelo SIGB da biblioteca; e nenhum dado do usuário é enviado a servidores próprios, apenas o ISBN às fontes bibliográficas. Pelo mesmo motivo, os mecanismos de cadastro e autenticação de usuários previstos inicialmente deixaram de ser necessários.
+
+O \autoref{qua:tecnologias} resume as tecnologias e ferramentas utilizadas, descritas em seguida.
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Tecnologias e ferramentas utilizadas no desenvolvimento}
+    \label{qua:tecnologias}
+    \begin{tabular}{|p{0.28\textwidth}|p{0.62\textwidth}|}
+        \hline
+        \textbf{Tecnologia} & \textbf{Finalidade} \\ \hline
+        TypeScript & Linguagem de programação da aplicação \\ \hline
+        React & Construção da interface em componentes \\ \hline
+        Vite & Servidor de desenvolvimento e geração da versão de produção \\ \hline
+        marcjs & Serialização dos registros MARC 21 no formato ISO 2709 \\ \hline
+        Web Storage API & Preservação do lote de trabalho no navegador \\ \hline
+        BrasilAPI, Open Library e Google Books & Fontes de metadados bibliográficos \\ \hline
+        Vercel & Hospedagem e publicação da aplicação \\ \hline
+        Git e GitHub & Controle de versão e repositório do código \\ \hline
+        Visual Studio Code & Ambiente de desenvolvimento \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\subsection{Linguagem e interface}
+\label{subsec:react}
+
+A aplicação foi desenvolvida em TypeScript, linguagem mantida pela Microsoft que acrescenta tipagem estática ao JavaScript \cite{typescript}. A tipagem permite declarar a estrutura dos dados de uma obra --- título, autores, edição, páginas e demais campos --- e verificar, antes da execução, que a camada de consulta, o formulário de revisão e o gerador de registros MARC utilizam essa estrutura de forma consistente.
+
+A interface foi construída com React, biblioteca para o desenvolvimento de interfaces baseada em componentes reutilizáveis que atualizam a tela automaticamente quando os dados mudam \cite{react}. Cada parte da tela --- o painel de busca, o formulário de revisão, a paginação do lote, a pré-visualização do registro --- corresponde a um componente independente, o que facilita a manutenção e a evolução da ferramenta. O Vite foi utilizado como ferramenta de desenvolvimento e de geração da versão de produção, que consiste em arquivos estáticos publicados na plataforma Vercel \cite{vite}.
+
+\subsection{Geração dos registros MARC}
+\label{subsec:marcjs}
+
+A serialização dos registros no formato ISO 2709 é realizada pela biblioteca marcjs, que implementa a leitura e a escrita de registros MARC em JavaScript \cite{marcjs}. A biblioteca é responsável pela parte estrutural do arquivo --- cálculo do líder, montagem do diretório e inserção dos caracteres separadores ---, enquanto as regras de catalogação foram implementadas no próprio Cataloga+: a escolha dos campos e indicadores, a pontuação ISBD, a inversão dos nomes dos autores para os pontos de acesso, os caracteres desconsiderados na ordenação de títulos iniciados por artigo e as diferenças entre os perfis RDA e AACR2.
+
+\subsection{Fontes de dados}
+\label{subsec:apis}
+
+Os metadados são obtidos de quatro fontes, consultadas em paralelo a partir do ISBN. As bases da CBL e do Mercado Editorial, que não oferecem API pública própria, são acessadas por meio da BrasilAPI \cite{brasilapi}; a Open Library \cite{openlibrary} e o Google Books \cite{googlebooks} são consultados diretamente, por meio de suas APIs. A consulta direta mostrou-se necessária porque, por intermédio da BrasilAPI, essas duas fontes raramente retornavam resultados, e porque a Open Library fornece, em sua própria API, dados ausentes nas demais, como a edição. Os resultados são consolidados segundo uma ordem de prioridade: os dados da fonte principal prevalecem e os campos ausentes são complementados pelas demais, cada uma com tempo limite de resposta para que uma fonte lenta não comprometa a busca.
+
+\subsection{Armazenamento no navegador}
+\label{subsec:storage}
+
+Por não possuir servidor, a ferramenta utiliza a Web Storage API, especificamente o \texttt{localStorage}, para preservar no próprio navegador o lote de trabalho em andamento e as preferências do usuário \cite{mdnstorage}. Dessa forma, o fechamento acidental da página não implica a perda das obras já consultadas e revisadas. Esses dados permanecem exclusivamente no computador do usuário, e o armazenamento definitivo dos registros continua sendo responsabilidade do SIGB para o qual são exportados.

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { BookFormState } from "../../utils/bookUtils";
+import type { CatalogingRules } from "../../utils/marcUtils";
 import { MarcViewer } from "../MarcViewer/MarcViewer";
 import { ParsedField } from "../fields/ParsedField";
 import { SelectField } from "../fields/SelectField";
@@ -34,12 +35,13 @@ function parseSubjects(text: string): string[] | undefined {
 
 type BookReviewPanelProps = {
   book: BookFormState;
+  rules: CatalogingRules;
   onFieldChange: <K extends keyof BookFormState>(field: K, value: BookFormState[K]) => void;
   onExport: () => void;
   onRemove: () => void;
 };
 
-export function BookReviewPanel({ book, onFieldChange, onExport, onRemove }: BookReviewPanelProps) {
+export function BookReviewPanel({ book, rules, onFieldChange, onExport, onRemove }: BookReviewPanelProps) {
   const currency = book.price?.currency ?? "BRL";
   const [isMarcViewerOpen, setIsMarcViewerOpen] = useState(false);
 
@@ -73,6 +75,12 @@ export function BookReviewPanel({ book, onFieldChange, onExport, onRemove }: Boo
             onChange={(value) => onFieldChange("location", value)}
           />
 
+          <TextField
+            label="Edição"
+            placeholder="Ex.: 2. ed."
+            value={book.edition ?? ""}
+            onChange={(value) => onFieldChange("edition", value || undefined)}
+          />
           <TextField
             label="Ano"
             inputMode="numeric"
@@ -114,6 +122,7 @@ export function BookReviewPanel({ book, onFieldChange, onExport, onRemove }: Boo
           <TextField label="Provedor" value={book.provider} onChange={(value) => onFieldChange("provider", value)} />
           <TextField
             label="URL da capa"
+            span={4}
             type="url"
             value={book.coverUrl ?? ""}
             onChange={(value) => onFieldChange("coverUrl", value || undefined)}
@@ -152,7 +161,7 @@ export function BookReviewPanel({ book, onFieldChange, onExport, onRemove }: Boo
         </button>
       </div>
 
-      {isMarcViewerOpen && <MarcViewer book={book} onClose={() => setIsMarcViewerOpen(false)} />}
+      {isMarcViewerOpen && <MarcViewer book={book} rules={rules} onClose={() => setIsMarcViewerOpen(false)} />}
     </section>
   );
 }

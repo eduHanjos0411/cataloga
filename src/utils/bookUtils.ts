@@ -7,6 +7,8 @@ export type BookFormState = {
   isbn: string;
   pageCount?: number;
   subtitle?: string;
+  // Indicação de edição como consta na obra ("2. ed.", "3ª edição")
+  edition?: string;
   location?: string;
   synopsis?: string;
   subjects?: string[];
@@ -23,6 +25,23 @@ export function formatIsbn(isbn: string): string {
     .toUpperCase()
     .replace(/[^\dX]/g, "")
     .replace(/X(?!$)/g, "");
+}
+
+/** Confere o dígito verificador do ISBN-10 (pesos 10 a 1, módulo 11) ou do ISBN-13 (pesos 1 e 3, módulo 10). */
+export function isValidIsbn(isbn: string): boolean {
+  const value = formatIsbn(isbn);
+
+  if (/^\d{9}[\dX]$/.test(value)) {
+    const sum = [...value].reduce((total, char, index) => total + (char === "X" ? 10 : Number(char)) * (10 - index), 0);
+    return sum % 11 === 0;
+  }
+
+  if (/^\d{13}$/.test(value)) {
+    const sum = [...value].reduce((total, char, index) => total + Number(char) * (index % 2 === 0 ? 1 : 3), 0);
+    return sum % 10 === 0;
+  }
+
+  return false;
 }
 
 function optionalString(value: unknown): string | undefined {
@@ -75,6 +94,7 @@ export function normalizeBookData(apiData: Record<string, unknown> | null, fallb
     pageCount: pageCountValue > 0 ? pageCountValue : undefined,
     isbn: fallbackIsbn || formatIsbn(String(apiData?.isbn ?? "")),
     subtitle: optionalString(apiData?.subtitle),
+    edition: optionalString(apiData?.edition),
     location: optionalString(apiData?.location),
     synopsis: optionalString(apiData?.synopsis),
     subjects: subjects.length > 0 ? subjects : undefined,
