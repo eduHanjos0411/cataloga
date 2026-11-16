@@ -12,6 +12,7 @@ Cataloga is a client-only React 19 + TypeScript + Vite app for library catalogin
 - `npm run build` — type-check (`tsc -b`) then production build to `dist/`
 - `npm run lint` — ESLint (flat config in `eslint.config.js`)
 - `npm run preview` — serve the built `dist/`
+- `npm run cobertura -- <isbns.txt>` — `scripts/cobertura.ts`, run directly by Node 24 (type stripping, so imports need `.ts` extensions; type-checked via `tsconfig.scripts.json`). Queries each provider adapter in isolation, rebuilds the consolidated record with the same priority rule as `api.ts`, and writes CSVs to `resultados/` (gitignored) for the thesis' coverage analysis. Provider adapters must stay importable outside Vite (hence `import.meta.env?.`).
 
 There is no test suite or test runner configured.
 

@@ -1,7 +1,7 @@
 import { fetchFromBrasilApi } from "./providers/brasilApi";
 import { fetchFromGoogleBooks, GOOGLE_BOOKS_API_KEY } from "./providers/googleBooks";
 import { fetchFromOpenLibrary } from "./providers/openLibrary";
-import { isValidIsbn, normalizeBookData, type BookFormState } from "./utils/bookUtils";
+import { isValidIsbn, MACHINE_TAG, normalizeBookData, type BookFormState } from "./utils/bookUtils";
 
 const ALL_PROVIDERS = ["cbl", "mercado-editorial", "open-library", "google-books"] as const;
 
@@ -51,10 +51,6 @@ const FILLABLE_FIELDS = [
 ] as const;
 
 type FillableField = (typeof FILLABLE_FIELDS)[number];
-
-// Etiquetas de máquina que alguns provedores misturam aos assuntos
-// (ex.: "nyt:combined-print-and-e-book-fiction=2023-07-09", "series:Harry_Potter")
-const MACHINE_TAG = /^[\w-]+:\S/;
 
 function isFieldEmpty(book: BookFormState, field: FillableField): boolean {
   const value = book[field];

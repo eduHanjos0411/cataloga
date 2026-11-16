@@ -4,7 +4,8 @@
 
 const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
 
-export const GOOGLE_BOOKS_API_KEY: string | undefined = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY || undefined;
+// "?." porque fora do Vite (ex.: scripts/cobertura.ts, executado pelo Node) import.meta.env não existe
+export const GOOGLE_BOOKS_API_KEY: string | undefined = import.meta.env?.VITE_GOOGLE_BOOKS_API_KEY || undefined;
 
 type VolumeInfo = {
   title?: string;
@@ -24,9 +25,13 @@ type Volume = {
 };
 
 /** Dados do Google Books convertidos para o formato da BrasilAPI. */
-export async function fetchFromGoogleBooks(isbn: string, signal: AbortSignal): Promise<Record<string, unknown> | null> {
+export async function fetchFromGoogleBooks(
+  isbn: string,
+  signal: AbortSignal,
+  apiKey = GOOGLE_BOOKS_API_KEY,
+): Promise<Record<string, unknown> | null> {
   const params = new URLSearchParams({ q: `isbn:${isbn}` });
-  if (GOOGLE_BOOKS_API_KEY) params.set("key", GOOGLE_BOOKS_API_KEY);
+  if (apiKey) params.set("key", apiKey);
 
   const response = await fetch(`${BASE_URL}?${params}`, { signal });
   if (!response.ok) throw new Error(`Google Books respondeu ${response.status}`);

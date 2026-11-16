@@ -19,6 +19,10 @@ export type BookFormState = {
   coverUrl?: string;
 };
 
+// Etiquetas de máquina que alguns provedores misturam aos assuntos
+// (ex.: "nyt:combined-print-and-e-book-fiction=2023-07-09", "series:Harry_Potter")
+export const MACHINE_TAG = /^[\w-]+:\S/;
+
 /** Mantém apenas os dígitos e o "X" final do ISBN-10 (dígito verificador 10). */
 export function formatIsbn(isbn: string): string {
   return isbn

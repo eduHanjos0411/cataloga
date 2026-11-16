@@ -62,6 +62,7 @@ Outros comandos:
 | `npm run build` | Verificação de tipos e build de produção em `dist/` |
 | `npm run preview` | Serve o build de produção localmente |
 | `npm run lint` | Análise estática com ESLint |
+| `npm run cobertura -- lista.txt` | Mede a cobertura de cada fonte para uma lista de ISBNs e grava planilhas CSV em `resultados/` (ver `scripts/cobertura.ts` e `scripts/isbns-exemplo.txt`) |
 
 ### Google Books (opcional)
 

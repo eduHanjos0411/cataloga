@@ -43,3 +43,6 @@ coverage
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Saídas do script de cobertura (scripts/cobertura.ts)
+resultados/
