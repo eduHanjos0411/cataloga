@@ -1,0 +1,220 @@
+% =============================================================================
+% Apêndices C e D — Questionários da avaliação com profissionais
+% Incluído por estrutura/pos-textuais/apendices.tex, dentro de apendicesenv.
+% Versão em texto simples, para montar no Google Forms: docs/tcc/formularios.md
+% =============================================================================
+
+\providecommand{\caixa}{$\square$}
+\providecommand{\opcao}[1]{\caixa~#1\quad}
+
+\chapter{Questionário de adesão}
+\label{ape:questionario-adesao}
+
+Instrumento aplicado em formulário eletrônico a bibliotecários e estudantes de Biblioteconomia, sem necessidade de uso prévio da ferramenta. Tempo estimado de resposta: 8 a 10 minutos.
+
+\section*{Parte 1 --- Termo de consentimento livre e esclarecido}
+
+Você está sendo convidado(a) a participar da pesquisa ``Cataloga+: sistema de catalogação assistida de livros'', desenvolvida como Trabalho de Conclusão de Curso do curso de Tecnologia em Sistemas para Internet do Instituto Federal de Brasília. O objetivo deste questionário é verificar se as funcionalidades de uma ferramenta de apoio à catalogação descritiva atendem às necessidades da prática bibliotecária. A participação é voluntária e anônima: nenhuma informação que permita identificá-lo(a) será solicitada, e você pode desistir a qualquer momento, sem nenhum prejuízo. Os dados serão utilizados exclusivamente para fins acadêmicos e apresentados apenas de forma agregada. Em caso de dúvidas, entre em contato com o pesquisador pelo e-mail [inserir e-mail institucional].
+
+\opcao{Li e concordo em participar da pesquisa.}
+
+\section*{Parte 2 --- Perfil do respondente}
+
+\begin{enumerate}
+    \item Qual é a sua formação?\\
+    \opcao{Graduação em Biblioteconomia em andamento}\opcao{Graduação em Biblioteconomia concluída}\opcao{Especialização}\opcao{Mestrado ou doutorado}\opcao{Outra}
+    \item Há quanto tempo você atua com catalogação?\\
+    \opcao{Não atuo}\opcao{Menos de 1 ano}\opcao{1 a 5 anos}\opcao{6 a 10 anos}\opcao{Mais de 10 anos}
+    \item Em que tipo de biblioteca você atua?\\
+    \opcao{Pública}\opcao{Escolar}\opcao{Universitária}\opcao{Especializada ou corporativa}\opcao{Comunitária}\opcao{Não atuo}\opcao{Outra}
+    \item Qual é o tamanho aproximado do acervo?\\
+    \opcao{Até 5 mil exemplares}\opcao{5 a 20 mil}\opcao{20 a 100 mil}\opcao{Mais de 100 mil}\opcao{Não sei}
+    \item Qual sistema a sua biblioteca utiliza para catalogação? (pode marcar mais de uma opção)\\
+    \opcao{Biblivre}\opcao{Koha}\opcao{Pergamum}\opcao{Sophia}\opcao{Aleph ou Alma}\opcao{Planilha ou registro manual}\opcao{Outro}
+    \item Qual código de catalogação é adotado?\\
+    \opcao{AACR2}\opcao{RDA}\opcao{Ambos (em transição)}\opcao{Não sei}
+\end{enumerate}
+
+\section*{Parte 3 --- Rotina de catalogação}
+
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Quantos livros você cataloga, em média, por semana?\\
+    \opcao{Nenhum}\opcao{1 a 10}\opcao{11 a 30}\opcao{31 a 100}\opcao{Mais de 100}
+    \item Quanto tempo você leva, em média, para fazer a catalogação descritiva de um livro sem reaproveitar registros prontos?\\
+    \opcao{Menos de 5 min}\opcao{5 a 10 min}\opcao{10 a 20 min}\opcao{20 a 30 min}\opcao{Mais de 30 min}
+    \item Com que frequência você reaproveita registros de outras instituições (catalogação por cópia)?\\
+    \opcao{Sempre}\opcao{Frequentemente}\opcao{Às vezes}\opcao{Raramente}\opcao{Nunca}
+    \item O sistema da sua biblioteca permite importar registros MARC (arquivo \texttt{.mrc})?\\
+    \opcao{Sim, e já utilizei}\opcao{Sim, mas nunca utilizei}\opcao{Não}\opcao{Não sei}
+    \item Quais etapas da catalogação descritiva mais tomam o seu tempo? (marque até três)\\
+    \opcao{Buscar os dados da obra}\opcao{Digitar os dados campo a campo}\opcao{Aplicar a pontuação}\opcao{Definir os pontos de acesso}\opcao{Preencher campos codificados (líder, 008)}\opcao{Revisar e corrigir erros}\opcao{Outra}
+    \item Com que frequência você precisa corrigir erros de digitação ou de preenchimento em registros?\\
+    \opcao{Nunca}\opcao{Raramente}\opcao{Às vezes}\opcao{Frequentemente}\opcao{Sempre}
+\end{enumerate}
+
+\section*{Parte 4 --- Funcionalidades da ferramenta}
+
+O Cataloga+ é uma ferramenta web gratuita que, a partir do ISBN, busca os dados de um livro em fontes públicas, permite que o bibliotecário revise e corrija esses dados e gera o registro em MARC 21 (arquivo \texttt{.mrc}), pronto para ser importado no sistema da biblioteca. [Inserir link para vídeo de demonstração ou para a ferramenta.]
+
+Considerando a sua prática de catalogação, indique o quanto cada funcionalidade ajudaria no seu dia a dia (1 = não ajudaria; 5 = ajudaria muito).
+
+\begin{longtable}{|p{0.06\textwidth}|p{0.59\textwidth}|c|c|c|c|c|}
+    \hline
+    & \textbf{Funcionalidade} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+    \endhead
+    F1 & Busca automática dos dados do livro a partir do ISBN & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F2 & Consulta a várias fontes ao mesmo tempo (CBL, Mercado Editorial, Open Library e Google Books), completando os dados que faltam em uma fonte com os de outra & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F3 & Informar vários ISBNs de uma vez, digitando uma lista ou usando leitor de código de barras, e trabalhar em lote & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F4 & Formulário para revisar e corrigir os dados antes de gerar o registro & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F5 & Pré-visualização do registro MARC 21 antes de exportar & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F6 & Geração do arquivo \texttt{.mrc} para importação no sistema da biblioteca, individualmente ou em lote & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F7 & Escolha entre gerar o registro segundo o RDA ou o AACR2 & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F8 & Aplicação automática da pontuação ISBD & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F9 & Inversão automática dos nomes dos autores nos pontos de acesso (``Azevedo, Aluísio'') & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F10 & Preenchimento automático de códigos, como país e idioma (008) e caracteres desconsiderados na ordenação de títulos com artigo (245) & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F11 & Uso direto no navegador, sem instalação e sem cadastro & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    F12 & Dados do trabalho armazenados apenas no computador do usuário & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+\end{longtable}
+
+\section*{Parte 5 --- Percepção sobre a ferramenta}
+
+Indique o seu grau de concordância com cada afirmação (1 = discordo totalmente; 5 = concordo totalmente).
+
+\begin{longtable}{|p{0.06\textwidth}|p{0.59\textwidth}|c|c|c|c|c|}
+    \hline
+    & \textbf{Afirmação} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+    \endhead
+    \multicolumn{7}{|l|}{\textit{Utilidade percebida}} \\ \hline
+    U1 & Uma ferramenta como esta reduziria o tempo que gasto catalogando livros & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    U2 & Uma ferramenta como esta reduziria erros de digitação e retrabalho & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    U3 & Uma ferramenta como esta contribuiria para a padronização dos registros & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    U4 & Com uma ferramenta como esta, eu poderia dedicar mais tempo a outras atividades, como o atendimento ao usuário & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    \multicolumn{7}{|l|}{\textit{Facilidade de uso percebida}} \\ \hline
+    E1 & Acredito que aprenderia a usar esta ferramenta rapidamente & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    E2 & Seria fácil incorporar esta ferramenta à minha rotina sem trocar o sistema da biblioteca & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    \multicolumn{7}{|l|}{\textit{Confiança e intenção de uso}} \\ \hline
+    C1 & Eu confiaria nos dados recuperados automaticamente, desde que pudesse revisá-los & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    I1 & Eu usaria uma ferramenta como esta na minha rotina de catalogação & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    I2 & Eu recomendaria esta ferramenta a colegas de profissão & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+\end{longtable}
+
+\section*{Parte 6 --- Questões abertas}
+
+\begin{enumerate}
+    \setcounter{enumi}{12}
+    \item Qual das funcionalidades apresentadas seria mais útil para você? Por quê?
+    \item O que poderia impedir você de utilizar uma ferramenta como esta? (pode marcar mais de uma opção)\\
+    \opcao{Falta de confiança nos dados}\opcao{O sistema da biblioteca não importa MARC}\opcao{Política da instituição}\opcao{Acesso limitado à internet}\opcao{Prefiro catalogar manualmente}\opcao{Outro}
+    \item Que outras fontes de dados ou funcionalidades você gostaria que a ferramenta tivesse?
+    \item Deixe aqui comentários ou sugestões.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+\chapter{Questionário de avaliação de uso}
+\label{ape:questionario-avaliacao}
+
+Instrumento aplicado aos bibliotecários que participarem dos testes da ferramenta, imediatamente após a execução do roteiro de tarefas. Cada participante é identificado apenas por um código (P01, P02 etc.). Tempo estimado: 40 a 50 minutos, incluindo as tarefas.
+
+\section*{Parte 1 --- Termo de consentimento e perfil}
+
+Apresenta-se o mesmo termo de consentimento do \autoref{ape:questionario-adesao}, acrescido da informação de que o participante utilizará a ferramenta e de que o tempo de execução das tarefas será registrado pelo pesquisador. Em seguida, são repetidas as questões 1, 2, 5, 6 e 8 do \autoref{ape:questionario-adesao}, que caracterizam a formação, a experiência, o sistema utilizado, o código de catalogação e o tempo médio de catalogação manual do participante.
+
+\section*{Parte 2 --- Roteiro de tarefas}
+
+O participante recebe cinco livros físicos e uma lista com seus ISBNs, à qual é acrescentado um ISBN com dígito verificador incorreto. O pesquisador registra, para cada tarefa, se ela foi concluída sem ajuda (S), com ajuda (A) ou não concluída (N), e o tempo de execução. Ao fim de cada tarefa, o participante responde: ``De modo geral, esta tarefa foi:'', de 1 (muito difícil) a 7 (muito fácil).
+
+\begin{longtable}{|p{0.05\textwidth}|p{0.48\textwidth}|p{0.11\textwidth}|p{0.09\textwidth}|p{0.12\textwidth}|}
+    \hline
+    \textbf{ID} & \textbf{Tarefa} & \textbf{Conclusão (S/A/N)} & \textbf{Tempo} & \textbf{Facilidade (1 a 7)} \\ \hline
+    \endhead
+    T1 & Buscar os dados de um livro pelo ISBN e abrir seu formulário de revisão & & & \\ \hline
+    T2 & Buscar de uma só vez os demais ISBNs da lista & & & \\ \hline
+    T3 & Revisar um registro, comparando-o com o livro em mãos, e corrigir os campos divergentes & & & \\ \hline
+    T4 & Visualizar o registro MARC e localizar nele o título e os dados de publicação & & & \\ \hline
+    T5 & Exportar o registro de um livro no padrão RDA & & & \\ \hline
+    T6 & Identificar o documento com erro e tratá-lo (tentar novamente ou remover) & & & \\ \hline
+    T7 & Alterar o padrão para AACR2 e exportar todo o lote & & & \\ \hline
+    T8 & (Opcional) Importar o arquivo exportado no sistema da biblioteca & & & \\ \hline
+\end{longtable}
+
+Para cada livro, o pesquisador registra ainda o tempo desde a busca até a exportação e os campos alterados pelo participante durante a revisão:
+
+\begin{longtable}{|p{0.18\textwidth}|p{0.58\textwidth}|p{0.12\textwidth}|}
+    \hline
+    \textbf{Livro (ISBN)} & \textbf{Campos corrigidos} & \textbf{Tempo} \\ \hline
+    \endhead
+    & \caixa~título \caixa~subtítulo \caixa~autores \caixa~editora \caixa~local \caixa~edição \caixa~ano \caixa~páginas \caixa~altura \caixa~formato \caixa~assuntos \caixa~sinopse \caixa~outro & \\ \hline
+    & \textit{(repetir uma linha por livro)} & \\ \hline
+\end{longtable}
+
+\section*{Parte 3 --- Usabilidade (\textit{System Usability Scale})}
+
+Indique o seu grau de concordância com cada afirmação (1 = discordo totalmente; 5 = concordo totalmente).
+
+\begin{longtable}{|p{0.06\textwidth}|p{0.59\textwidth}|c|c|c|c|c|}
+    \hline
+    & \textbf{Afirmação} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+    \endhead
+    S1 & Eu acho que gostaria de usar esta ferramenta com frequência & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S2 & Eu achei a ferramenta desnecessariamente complexa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S3 & Eu achei a ferramenta fácil de usar & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S4 & Eu acho que precisaria do apoio de um técnico para conseguir usar esta ferramenta & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S5 & Eu achei que as diversas funções da ferramenta estavam bem integradas & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S6 & Eu achei que havia muita inconsistência na ferramenta & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S7 & Eu imagino que a maioria das pessoas aprenderia a usar esta ferramenta rapidamente & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S8 & Eu achei a ferramenta muito complicada de usar & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S9 & Eu me senti muito confiante usando a ferramenta & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    S10 & Eu precisei aprender muitas coisas antes de conseguir usar esta ferramenta & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+\end{longtable}
+
+\section*{Parte 4 --- Funcionalidade e qualidade dos registros}
+
+Indique o seu grau de concordância com cada afirmação (1 = discordo totalmente; 5 = concordo totalmente). Marque ``N/A'' quando a afirmação não se aplicar ao seu teste.
+
+\begin{longtable}{|p{0.06\textwidth}|p{0.52\textwidth}|c|c|c|c|c|c|}
+    \hline
+    & \textbf{Afirmação} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{N/A} \\ \hline
+    \endhead
+    Q1 & Os dados recuperados estavam corretos na maior parte dos campos & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q2 & Os dados recuperados foram suficientes para a catalogação descritiva das obras & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q3 & A combinação das fontes preencheu campos que eu teria de digitar & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q4 & O registro gerado está de acordo com o código escolhido (RDA ou AACR2) & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q5 & A pontuação ISBD foi aplicada corretamente & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q6 & Os pontos de acesso de autor (nomes invertidos) estavam corretos & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q7 & A pré-visualização facilitou a conferência do registro & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q8 & O arquivo exportado foi importado no sistema da biblioteca sem erros & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q9 & Os dados exibidos no sistema da biblioteca corresponderam aos que revisei & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q10 & As mensagens de erro deixaram claro o que havia acontecido & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+    Q11 & O trabalho em lote é adequado ao volume de obras que catalogo & \caixa & \caixa & \caixa & \caixa & \caixa & \caixa \\ \hline
+\end{longtable}
+
+\section*{Parte 5 --- Eficiência percebida}
+
+\begin{enumerate}
+    \item Em comparação com a catalogação manual, catalogar com o Cataloga+ foi:\\
+    \opcao{Muito mais lento}\opcao{Mais lento}\opcao{Igual}\opcao{Mais rápido}\opcao{Muito mais rápido}
+    \item Quanto tempo, em minutos, você estima levar para catalogar um livro manualmente? \underline{\hspace{1.5cm}} E com o Cataloga+? \underline{\hspace{1.5cm}}
+    \item A ferramenta reduziu a quantidade de dados que precisei digitar.\\
+    (1 = discordo totalmente; 5 = concordo totalmente) \quad 1~\caixa\quad 2~\caixa\quad 3~\caixa\quad 4~\caixa\quad 5~\caixa
+\end{enumerate}
+
+\section*{Parte 6 --- Satisfação e intenção de uso}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Eu usaria o Cataloga+ na minha rotina de catalogação.\\
+    (1 = discordo totalmente; 5 = concordo totalmente) \quad 1~\caixa\quad 2~\caixa\quad 3~\caixa\quad 4~\caixa\quad 5~\caixa
+    \item Em uma escala de 0 a 10, quanto você recomendaria o Cataloga+ a um colega de profissão? \underline{\hspace{1.5cm}}
+\end{enumerate}
+
+\section*{Parte 7 --- Questões abertas}
+
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item Quais foram os pontos positivos da ferramenta?
+    \item Quais dificuldades você encontrou?
+    \item Você identificou algum erro nos dados ou nos registros gerados? Descreva.
+    \item Que campos, regras de catalogação ou funcionalidades fizeram falta?
+    \item Deixe aqui outros comentários ou sugestões.
+\end{enumerate}

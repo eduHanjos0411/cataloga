@@ -1,0 +1,434 @@
+% =============================================================================
+% Capítulo 4 — Desenvolvimento
+%
+% Requer no preâmbulo (configuracoes/pacotes.tex):
+%   \usepackage{tikz}
+%   \usetikzlibrary{positioning, arrows.meta}
+%   \usepackage{float}   % opção [H] das capturas de tela
+%
+% Capturas de tela: usam [H] (ficam exatamente onde aparecem no texto) e
+% tamanho limitado por largura E altura (keepaspectratio), para que nenhuma
+% imagem estreita e alta ultrapasse a página.
+%
+% Linha de desenvolvimento (seção 4.2): fases datadas pelo histórico do Git
+% (set.-out./2026). A fase 6 reúne alterações sem commit registrado até 27/10.
+% =============================================================================
+
+\chapter{Desenvolvimento}
+\label{cap:desenvolvimento}
+
+Este capítulo relata a construção do Cataloga+ do ponto de vista do próprio projeto, complementando os conceitos apresentados no \autoref{cap:fundamentacao} e os procedimentos descritos no \autoref{cap:metodologia}. Inicialmente, descreve-se a prática de desenvolvimento adotada e a linha de evolução da ferramenta, isto é, a sequência de incrementos que a levou à versão atual e as decisões tomadas em cada etapa. Em seguida, apresenta-se a arquitetura da solução, com seus componentes e o fluxo dos dados entre eles. Por fim, descrevem-se as funcionalidades e a interface, acompanhadas de capturas de tela, e a situação atual dos requisitos levantados.
+
+\section{Prática de desenvolvimento}
+\label{sec:pratica}
+
+O desenvolvimento seguiu o fluxo contínuo do Kanban descrito na \autoref{sec:kanban}: cada funcionalidade foi tratada como um cartão que percorria as etapas ``a fazer'', ``em andamento'' e ``concluído'', e somente era considerada concluída quando podia ser utilizada de ponta a ponta na interface. Essa regra orientou a construção da ferramenta em pequenos incrementos verticais: em vez de desenvolver primeiro toda a camada de dados e depois toda a interface, cada incremento atravessava todas as camadas --- da consulta à fonte até o arquivo exportado ---, de forma que, ao fim de cada ciclo, houvesse uma versão utilizável para testes com ISBNs reais.
+
+Algumas práticas foram mantidas ao longo de todo o projeto:
+
+\begin{itemize}
+    \item \textbf{tipagem estática e análise do código}: o TypeScript foi configurado em modo estrito, e a geração da versão de produção só é concluída se a verificação de tipos não apontar erros; o ESLint foi utilizado para identificar problemas comuns e manter um estilo uniforme no código;
+    \item \textbf{controle de versão}: cada alteração foi registrada no Git com mensagens no padrão \textit{Conventional Commits} (\texttt{feat}, \texttt{fix}, \texttt{refactor}, \texttt{chore}), redigidas em português, o que permite reconstruir a evolução do projeto a partir do histórico do repositório;
+    \item \textbf{testes com dados reais}: cada incremento foi verificado com um conjunto de ISBNs de obras brasileiras e estrangeiras, incluindo casos conhecidos de falha, como ISBNs com dígito verificador incorreto, obras ausentes em todas as fontes e fontes fora do ar;
+    \item \textbf{publicação contínua}: a aplicação, por ser composta apenas de arquivos estáticos, foi publicada na plataforma Vercel, o que permitiu acessar e testar cada nova versão a partir de qualquer computador, sem instalação.
+    % VERIFICAR: se a Vercel publica automaticamente a cada push no GitHub, mencionar.
+\end{itemize}
+
+\section{Linha de desenvolvimento}
+\label{sec:linha-desenvolvimento}
+
+O desenvolvimento do Cataloga+ ocorreu entre setembro e outubro de 2026 e pode ser dividido em seis fases, reconstruídas a partir do histórico de versões do repositório e sintetizadas no \autoref{qua:linha-desenvolvimento}. As fases não foram planejadas integralmente no início do projeto: várias delas surgiram de limitações observadas nos testes da fase anterior, como é próprio de um fluxo de trabalho Kanban.
+
+\begin{quadro}[htbp]
+    \centering
+    \caption{Fases do desenvolvimento do Cataloga+}
+    \label{qua:linha-desenvolvimento}
+    \footnotesize
+    \begin{tabular}{|p{0.04\textwidth}|p{0.10\textwidth}|p{0.20\textwidth}|p{0.33\textwidth}|p{0.19\textwidth}|}
+        \hline
+        \textbf{Fase} & \textbf{Data} & \textbf{Foco} & \textbf{Principais entregas} & \textbf{Motivação} \\ \hline
+        1 & 18/09/2026 & Estrutura e interface inicial & Projeto React, TypeScript e Vite; cabeçalho; campo de busca de ISBN; formulário de revisão; temas claro e escuro & Validar o fluxo ISBN $\rightarrow$ revisão \\ \hline
+        2 & 02/10/2026 & Múltiplas fontes e exportação MARC & Escolha da fonte prioritária; consulta a todas as fontes com reunião dos assuntos; exportação \texttt{.mrc} com a marcjs; apelidos mínimos no lugar dos \textit{polyfills}; leiaute em componentes; aviso de revisão obrigatória & Nenhuma fonte, isoladamente, era completa; gerar o arquivo final \\ \hline
+        3 & 05/10/2026 & Confiabilidade e pré-visualização & Preservação do ``X'' do ISBN-10; mensagens de erro por motivo da falha; pré-visualização do registro MARC antes da exportação & Evitar erros silenciosos e permitir a conferência do registro \\ \hline
+        4 & 23/10/2026 & Processamento em lote & Vários ISBNs por vez; lote de trabalho com paginação; exportação do lote em um único arquivo \texttt{.mrc} & Catalogação de remessas de livros \\ \hline
+        5 & 27/10/2026 & Consulta direta e perfil AACR2 & Adaptadores que consultam a Open Library e o Google Books diretamente; escolha entre RDA e AACR2; campo de edição & Dados mais completos; compatibilidade com SIGBs que não adotaram o RDA \\ \hline
+        6 & após 27/10/2026 & Acabamento & Validação do dígito verificador; tempo limite por fonte; preservação do lote no navegador; caixas de confirmação e avisos próprios & Evitar perda de trabalho; usabilidade \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor, com base no histórico de versões do repositório.}
+\end{quadro}
+
+\textbf{Fase 1 --- estrutura e interface inicial.} O cabeçalho, o campo de busca por ISBN, o formulário de revisão e a alternância entre os temas claro e escuro. O objetivo desse incremento era demonstrar, da forma mais simples possível, que o fluxo central da ferramenta era viável: o usuário informa um ISBN, a aplicação consulta uma fonte por meio da BrasilAPI e preenche um formulário com os dados encontrados, que podem ser corrigidos antes do uso.
+
+\textbf{Fase 2 --- múltiplas fontes e exportação MARC.} Foram integradas as duas funções que dão sentido à ferramenta. A primeira foi a consulta a várias fontes: os testes da primeira fase mostraram que uma única fonte deixava campos vazios com frequência, pois dados como a edição, o número de páginas e a sinopse estavam presentes em algumas fontes e ausentes em outras, variando de obra para obra. Inicialmente, as demais fontes eram consultadas apenas quando a fonte escolhida não encontrava a obra; a estratégia foi revista para consultar sempre todas as fontes, complementar os campos vazios da fonte prioritária com os dados das demais e reunir os assuntos de todas elas, sem repetição.
+
+A segunda função foi a exportação do registro em MARC 21 com a biblioteca marcjs, já com as regras descritas no \autoref{cap:fundamentacao}: a pontuação ISBD dentro dos subcampos, a inversão dos nomes dos autores para os pontos de acesso --- considerando termos de parentesco, como ``Filho'' e ``Júnior'' ---, o cálculo dos caracteres desconsiderados na ordenação de títulos iniciados por artigo e o preenchimento dos códigos de país e idioma do campo 008 a partir do grupo de registro do ISBN.
+Nessa etapa foi resolvido o principal obstáculo técnico do projeto: a marcjs, escrita originalmente para o ambiente Node.js, depende de módulos que não existem no navegador. A primeira solução foi um \textit{plugin} que emula todo o ambiente Node.js; ele foi substituído por apelidos (\textit{aliases}) mínimos no Vite, que trocam apenas os quatro módulos necessários por equivalentes compatíveis com o navegador, reduzindo o tamanho da aplicação e dispensando um servidor intermediário. A interface foi reorganizada em componentes, com um novo leiaute, e passou a exibir um aviso permanente de que os dados recuperados são um ponto de partida e devem ser conferidos com o livro em mãos.
+
+\textbf{Fase 3 --- confiabilidade e pré-visualização.} Os testes com ISBNs reais revelaram dois problemas. O primeiro: o caractere ``X'', que pode ocupar a posição do dígito verificador no ISBN-10, era descartado na limpeza do número, tornando-o inválido. O segundo: todas as falhas eram apresentadas com a mesma mensagem, de modo que o bibliotecário não sabia se o número estava errado, se a obra não existia nas fontes ou se as fontes estavam fora do ar. Ambos foram corrigidos, e as falhas passaram a ser informadas pelo motivo. Foi criada também a pré-visualização do registro MARC, que permite ao bibliotecário conferir o resultado antes de exportá-lo.
+
+\textbf{Fase 4 --- processamento em lote.} A catalogação raramente ocorre livro a livro: bibliotecas recebem remessas de doações e aquisições. O campo de ISBN passou a aceitar listas, separadas por quebra de linha, vírgula, ponto e vírgula ou espaço, e cada ISBN passou a constituir um documento de um lote de trabalho, navegável por paginação. Como cada ISBN gera uma requisição para cada fonte, limitou-se a três o número de ISBNs consultados simultaneamente, evitando sobrecarregar as fontes. O campo de entrada recebe o foco ao abrir a página e dispara a busca ao receber a tecla Enter, o que permite o uso de leitores de código de barras que operam como teclado. O lote pode ser exportado em um único arquivo \texttt{.mrc}.
+
+\textbf{Fase 5 --- consulta direta e perfil AACR2.} Constatou-se que a Open Library e o Google Books, quando acessados por intermédio da BrasilAPI, raramente retornavam dados. Foram criados adaptadores que consultam essas fontes diretamente e convertem suas respostas para um formato comum; o Google Books, cuja cota de consultas anônimas se esgota com frequência, passou a ser habilitado apenas quando uma chave de acesso está configurada. De forma conseguinte, foi incluído o perfil AACR2: ao analisar a importação dos registros, verificou-se que parte dos SIGBs utilizados no Brasil, como o Biblivre, não contempla os elementos do RDA. Em vez de abandonar o RDA, código vigente, optou-se por oferecer os dois perfis: a mesma obra pode ser exportada segundo o RDA ou o AACR2, e as diferenças entre eles (\autoref{qua:aacr2-rda}) são aplicadas automaticamente. O formulário também ganhou o campo de edição, exportado no campo MARC 250.
+
+\textbf{Fase 6 --- acabamento.} Reúne ajustes posteriores ao último registro do histórico, voltados a evitar perda de trabalho e a melhorar a experiência de uso. O dígito verificador do ISBN passou a ser conferido antes de qualquer consulta; cada consulta a uma fonte passou a ser interrompida após dez segundos, para que uma fonte lenta não bloqueasse a busca; o lote e a escolha do padrão de catalogação passaram a ser salvos no navegador, sendo recuperados ao recarregar a página; e as caixas de diálogo nativas do navegador foram substituídas por componentes próprios de confirmação e aviso, com o mesmo visual da aplicação. O código foi reorganizado em módulos com responsabilidades bem definidas, descritos na seção seguinte.
+
+\section{Arquitetura da solução}
+\label{sec:arquitetura}
+
+O Cataloga+ é uma aplicação web de página única (SPA, do inglês \textit{Single Page Application}) executada inteiramente no navegador do usuário. Não há servidor de aplicação nem banco de dados próprios: os arquivos da aplicação são publicados como conteúdo estático, e todo o processamento --- consulta às fontes, consolidação dos dados e geração dos registros --- ocorre no computador do bibliotecário. As únicas comunicações externas são as consultas às fontes bibliográficas, que recebem apenas o ISBN. A \autoref{fig:arquitetura} apresenta os componentes da solução e suas relações.
+
+\begin{figure}[htbp]
+    \centering
+    \caption{Arquitetura do Cataloga+}
+    \label{fig:arquitetura}
+    \begin{tikzpicture}[
+        font=\scriptsize,
+        node distance=0.6cm and 0.7cm,
+        bloco/.style={draw, rounded corners=2pt, align=center, text width=5.4cm, minimum height=1.25cm, fill=black!6},
+        lateral/.style={draw, rounded corners=2pt, align=center, text width=3.0cm, minimum height=1.25cm},
+        externo/.style={lateral, dashed},
+        seta/.style={-{Stealth[length=1.8mm]}, semithick},
+        dupla/.style={{Stealth[length=1.8mm]}-{Stealth[length=1.8mm]}, semithick}
+    ]
+        \node[lateral] (usuario) {\textbf{Bibliotecário}\\navegador web};
+        \node[bloco, below=of usuario] (ui) {\textbf{Apresentação}\\componentes React: painel de busca, paginação do lote, formulário de revisão, pré-visualização MARC, diálogos e avisos};
+        \node[bloco, below=of ui] (estado) {\textbf{Estado da aplicação}\\\texttt{useBookSearch}: lote de trabalho, fila de buscas e documento atual};
+        \node[bloco, below=of estado] (integracao) {\textbf{Integração}\\\texttt{api.ts} e adaptadores: validação do ISBN, consulta paralela e consolidação};
+        \node[bloco, below=of integracao] (dominio) {\textbf{Domínio}\\\texttt{bookUtils.ts}: tipo \texttt{BookFormState} e normalização dos dados};
+        \node[lateral, left=of estado] (storage) {\textbf{localStorage}\\lote de trabalho e preferências};
+        \node[lateral, right=of ui] (exportacao) {\textbf{Exportação}\\\texttt{marcUtils.ts} e marcjs: registro MARC 21 (RDA ou AACR2)};
+        \node[externo, right=of estado] (arquivo) {\textbf{Arquivo .mrc}\\(ISO 2709) importado no SIGB};
+        \node[externo, right=of integracao] (fontes) {\textbf{Fontes externas}\\BrasilAPI (CBL e Mercado Editorial), Open Library, Google Books};
+
+        \draw[dupla] (usuario) -- (ui);
+        \draw[dupla] (ui) -- (estado);
+        \draw[dupla] (estado) -- (integracao);
+        \draw[dupla] (integracao) -- (dominio);
+        \draw[dupla] (storage) -- (estado);
+        \draw[dupla] (integracao) -- node[above]{ISBN} (fontes);
+        \draw[seta] (ui) -- (exportacao);
+        \draw[seta] (exportacao) -- (arquivo);
+    \end{tikzpicture}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+Os dados percorrem a aplicação em um único sentido, ilustrado na \autoref{fig:fluxo-dados}: as respostas das fontes são convertidas para um formato comum, consolidadas em um único conjunto de dados da obra, revisadas pelo bibliotecário no formulário e, por fim, convertidas em registro MARC 21. Esse fluxo unidirecional simplifica o raciocínio sobre o sistema: cada etapa recebe os dados da anterior e não precisa conhecer as demais.
+
+\begin{figure}[htbp]
+    \centering
+    \caption{Fluxo dos dados no Cataloga+}
+    \label{fig:fluxo-dados}
+    \begin{tikzpicture}[
+        font=\scriptsize,
+        node distance=0.9cm and 0.55cm,
+        etapa/.style={draw, rounded corners=2pt, align=center, text width=2.75cm, minimum height=1.3cm, fill=black!6},
+        seta/.style={-{Stealth[length=1.8mm]}, semithick}
+    ]
+        \node[etapa] (e1) {\textbf{1. Entrada}\\um ou mais ISBNs};
+        \node[etapa, right=of e1] (e2) {\textbf{2. Validação}\\dígito verificador};
+        \node[etapa, right=of e2] (e3) {\textbf{3. Consulta}\\fontes em paralelo, tempo limite de 10 s};
+        \node[etapa, right=of e3] (e4) {\textbf{4. Normalização}\\formato comum (\texttt{BookFormState})};
+        \node[etapa, below=of e4] (e5) {\textbf{5. Consolidação}\\prioridade, complementação e união dos assuntos};
+        \node[etapa, left=of e5] (e6) {\textbf{6. Revisão}\\edição dos campos pelo bibliotecário};
+        \node[etapa, left=of e6] (e7) {\textbf{7. Geração}\\registro MARC 21 em RDA ou AACR2};
+        \node[etapa, left=of e7] (e8) {\textbf{8. Exportação}\\arquivo \texttt{.mrc} para o SIGB};
+
+        \draw[seta] (e1) -- (e2);
+        \draw[seta] (e2) -- (e3);
+        \draw[seta] (e3) -- (e4);
+        \draw[seta] (e4) -- (e5);
+        \draw[seta] (e5) -- (e6);
+        \draw[seta] (e6) -- (e7);
+        \draw[seta] (e7) -- (e8);
+    \end{tikzpicture}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+O código-fonte está organizado de modo que cada camada da \autoref{fig:arquitetura} corresponda a um módulo, conforme o \autoref{qua:modulos}. Essa divisão atende ao requisito de manutenibilidade (RNF12): a inclusão de uma nova fonte de dados, por exemplo, exige apenas um novo adaptador, sem alterações no formulário ou no gerador de registros.
+
+\begin{quadro}[htbp]
+    \centering
+    \caption{Módulos do código-fonte do Cataloga+}
+    \label{qua:modulos}
+    \footnotesize
+    \begin{tabular}{|p{0.30\textwidth}|p{0.60\textwidth}|}
+        \hline
+        \textbf{Módulo} & \textbf{Responsabilidade} \\ \hline
+        \texttt{providers/} & Um adaptador por fonte (BrasilAPI, Open Library, Google Books). Cada adaptador consulta sua API e converte a resposta para um formato comum \\ \hline
+        \texttt{api.ts} & Valida o ISBN, consulta todas as fontes em paralelo com tempo limite e consolida os resultados \\ \hline
+        \texttt{utils/bookUtils.ts} & Define o tipo \texttt{BookFormState}, estrutura central dos dados de uma obra, a normalização das respostas e a validação do dígito verificador \\ \hline
+        \texttt{hooks/useBookSearch.ts} & Mantém o lote de trabalho, controla a fila de buscas (até três simultâneas) e salva o lote no navegador \\ \hline
+        \texttt{utils/marcUtils.ts} & Gera o registro MARC 21 segundo o RDA ou o AACR2, aplicando as regras de catalogação, e o serializa em ISO 2709 por meio da marcjs \\ \hline
+        \texttt{components/} & Componentes da interface: painel de busca, seletores de fonte e de padrão, paginação do lote, formulário de revisão, pré-visualização MARC, caixa de confirmação e avisos \\ \hline
+        \texttt{App.tsx} & Componente raiz: compõe a tela, guarda o tema e o padrão de catalogação escolhidos e coordena as exportações \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\subsection{Integração com as fontes de dados}
+\label{subsec:integracao}
+
+Cada fonte bibliográfica responde em um formato próprio: a BrasilAPI utiliza nomes de campos como \texttt{page\_count} e \texttt{cover\_url}; a Open Library separa os dados da obra e os da edição em duas consultas; o Google Books agrupa as informações em um objeto \texttt{volumeInfo}. Para isolar essas diferenças, adotou-se o padrão de projeto adaptador: cada fonte possui um módulo que converte sua resposta para o formato da BrasilAPI, escolhido como formato comum. Dessa forma, uma única função de normalização transforma qualquer resposta no tipo \texttt{BookFormState}, utilizado pelo restante da aplicação.
+
+A consolidação dos resultados obedece a três regras. Primeiro, a fonte escolhida pelo usuário --- ou, no modo automático, a primeira da ordem padrão (CBL, Mercado Editorial, Open Library e Google Books) --- tem prioridade, e seus dados prevalecem. Segundo, cada campo vazio na fonte prioritária é preenchido com o valor da primeira fonte seguinte que o possua, sem mistura de valores em um mesmo campo (RNF07). Terceiro, os assuntos de todas as fontes são reunidos em uma única lista, sem repetições e descartando etiquetas técnicas que algumas fontes misturam aos assuntos, como listas de mais vendidos. O campo ``Provedor'' do formulário informa quais fontes contribuíram para o resultado (por exemplo, ``cbl + open-library'').
+
+Uma busca termina em um de quatro resultados: dados encontrados; ISBN inválido, quando o dígito verificador não confere e nenhuma consulta é realizada; obra não encontrada, quando todas as fontes responderam sem dados; e fontes indisponíveis, quando nenhuma fonte retornou dados e ao menos uma falhou ou excedeu o tempo limite --- situação em que uma nova tentativa pode ter sucesso.
+
+\subsection{Armazenamento local e privacidade}
+\label{subsec:arq-armazenamento}
+
+O lote de trabalho é salvo no \texttt{localStorage} do navegador a cada alteração, assim como o padrão de catalogação escolhido. Ao reabrir a página, o lote é restaurado; documentos cuja busca estava em andamento no momento do fechamento são marcados como ``Busca interrompida'' e podem ser consultados novamente. Como nenhum dado é enviado a servidores próprios, as informações do lote permanecem exclusivamente no computador do usuário (RNF10).
+
+\section{Funcionalidades e interface}
+\label{sec:funcionalidades}
+
+A interface foi organizada em uma única tela, dividida em duas colunas (\autoref{fig:tela-inicial}). À esquerda, o painel de busca reúne a entrada de ISBNs, a escolha da fonte de dados, a escolha do padrão de catalogação e a capa da obra exibida. À direita, a área de trabalho apresenta a paginação do lote e o documento atual. Em telas estreitas, as colunas são empilhadas. No topo, um botão alterna entre os temas claro e escuro.
+
+\begin{figure}[H]
+    \centering
+    \caption{Tela inicial do Cataloga+}
+    \label{fig:tela-inicial}
+    \includegraphics[width=\textwidth, height=0.40\textheight, keepaspectratio]{dados/figuras/TelaInicialVaziaCataloga}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\subsection{Entrada de ISBNs}
+\label{subsec:func-entrada}
+
+O campo de ISBN aceita um único número ou uma lista, digitada ou colada, com um ISBN por linha ou separados por vírgula, ponto e vírgula ou espaço (RF01). Hifens e espaços internos são ignorados, e são aceitos tanto o ISBN-10 quanto o ISBN-13. A tecla Enter inicia a busca, enquanto a combinação Shift+Enter insere uma nova linha. Como o campo recebe o foco ao abrir a página e o leitor de código de barras ``digita'' o número seguido de Enter, cada leitura inicia automaticamente a busca do livro correspondente (RF02). ISBNs repetidos, na mesma lista ou já presentes no lote, não geram nova consulta: a ferramenta apenas exibe a página do documento existente.
+
+Acima do campo, um aviso permanente lembra ao bibliotecário que os dados encontrados servem como ponto de partida e devem ser conferidos com o livro em mãos, reforçando o princípio da catalogação assistida.
+
+% A captura do painel é estreita e alta (320 x 814 px): limitada pela ALTURA.
+\begin{figure}[H]
+    \centering
+    \caption{Entrada de uma lista de ISBNs}
+    \label{fig:entrada-lista}
+    \includegraphics[height=9cm, width=\textwidth, keepaspectratio]{dados/figuras/PainelDeBuscaMultipla}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\subsection{Escolha da fonte e do padrão de catalogação}
+\label{subsec:func-escolhas}
+
+Abaixo do campo de ISBN, dois seletores permitem configurar a busca e a exportação (\autoref{fig:seletores}). O seletor ``Fonte dos dados'' define qual fonte terá prioridade na consolidação (RF05): no modo ``Automático'' é utilizada a ordem padrão; ao escolher uma fonte específica, seus dados prevalecem e as demais apenas complementam os campos vazios. O seletor de padrão define se os registros serão gerados segundo o RDA ou o AACR2 (RF12). A escolha do padrão vale para a pré-visualização e para as exportações, individuais ou em lote, e é preservada entre as sessões.
+
+\begin{figure}[H]
+    \centering
+    \caption{Seletores de fonte de dados e de padrão de catalogação}
+    \label{fig:seletores}
+    \includegraphics[width=0.5\textwidth]{dados/figuras/RecorteFonteDeDados}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\subsection{Lote de trabalho}
+\label{subsec:func-lote}
+
+Cada ISBN informado torna-se um documento do lote de trabalho, apresentado com uma página por documento (RF08). A barra de paginação, inspirada na dos mecanismos de busca, exibe a primeira e a última páginas, as vizinhas da página atual e reticências no lugar das demais, o que mantém a navegação legível mesmo em lotes com dezenas de documentos (RNF06). A cor de cada número indica a situação do documento --- em busca, pronto ou com erro --- e, ao posicionar o cursor sobre ele, o título da obra ou o motivo do erro é exibido (RNF11). A barra informa ainda quantos documentos estão prontos e oferece as ações de limpar e exportar o lote (\autoref{fig:lote}).
+
+\begin{figure}[H]
+    \centering
+    \caption{Paginação do lote de trabalho}
+    \label{fig:lote}
+    \includegraphics[width=\textwidth]{dados/figuras/Paginacao}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+Quando a busca de um documento falha, sua página exibe o motivo e oferece as opções de tentar novamente ou remover o documento do lote (RF09 e RF14), como mostra a \autoref{fig:erro}.
+
+\begin{figure}[H]
+    \centering
+    \caption{Documento do lote com erro na busca}
+    \label{fig:erro}
+    \includegraphics[width=\textwidth, height=0.40\textheight, keepaspectratio]{dados/figuras/ErroDeISBN}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\subsection{Revisão e edição dos dados}
+\label{subsec:func-revisao}
+
+Quando a busca é bem-sucedida, a página do documento apresenta o formulário de revisão, preenchido automaticamente com os dados consolidados (RF06), e todos os campos podem ser editados antes da exportação (RF07). A \autoref{fig:revisao} mostra o formulário, e o \autoref{qua:formulario-marc} relaciona cada campo do formulário ao campo MARC 21 em que é registrado, o que permite ao bibliotecário saber exatamente onde cada informação aparecerá no catálogo.
+
+\begin{figure}[H]
+    \centering
+    \caption{Formulário de revisão dos dados}
+    \label{fig:revisao}
+    \includegraphics[width=\textwidth, height=0.40\textheight, keepaspectratio]{dados/figuras/TelaRetornoDeDadosSucesso}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\begin{quadro}[htbp]
+    \centering
+    \caption{Correspondência entre os campos do formulário e os campos MARC 21}
+    \label{qua:formulario-marc}
+    \footnotesize
+    \begin{tabular}{|p{0.22\textwidth}|p{0.36\textwidth}|p{0.32\textwidth}|}
+        \hline
+        \textbf{Campo do formulário} & \textbf{Campo MARC 21} & \textbf{Observação} \\ \hline
+        Título & 245 \$a & Define também o 2.\textsuperscript{o} indicador do 245 \\ \hline
+        Subtítulo & 245 \$b & Precedido de `` : '' \\ \hline
+        Autor(es) & 100 \$a (primeiro), 700 \$a (demais) e 245 \$c & Forma invertida nos pontos de acesso; forma direta no 245 \\ \hline
+        Editora & 264 \$b (RDA) ou 260 \$b (AACR2) & \\ \hline
+        Local de publicação & 264 \$a (RDA) ou 260 \$a (AACR2) & \\ \hline
+        Edição & 250 \$a & \\ \hline
+        Ano & 264/260 \$c e 008/07--10 & \\ \hline
+        Número de páginas & 300 \$a & ``páginas'' (RDA) ou ``p.'' (AACR2) \\ \hline
+        Altura (cm) & 300 \$c & Arredondada para cima, como prescrevem os códigos \\ \hline
+        Formato & 008/23, 337, 338 e 245 \$h (AACR2) & Distingue livro impresso e digital \\ \hline
+        ISBN & 001, 020 \$a e 008/15--17 e 35--37 & Prefixos 65 e 85 indicam obra brasileira \\ \hline
+        Preço & 020 \$c & \\ \hline
+        Assuntos & 653 \$a & Um campo por assunto, separados por ``;'' no formulário \\ \hline
+        Sinopse & 520 \$a & \\ \hline
+        URL da capa & 856 \$u & \\ \hline
+        Provedor & --- & Apenas informativo; não é exportado \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\subsection{Regras de catalogação aplicadas automaticamente}
+\label{subsec:func-regras}
+
+Na geração do registro, o Cataloga+ aplica automaticamente as regras de catalogação que, na catalogação manual, dependem da atenção do bibliotecário a cada registro (RF13):
+
+\begin{itemize}
+    \item \textbf{inversão dos nomes}: ``Aluísio Azevedo'' torna-se ``Azevedo, Aluísio'' nos campos 100 e 700; termos de parentesco permanecem junto ao sobrenome (``José Santos Filho'' torna-se ``Santos Filho, José''), e partículas permanecem junto ao prenome (``José da Silva'' torna-se ``Silva, José da''). Nomes que já chegam invertidos das fontes são mantidos;
+    \item \textbf{forma direta na indicação de responsabilidade}: no subcampo 245 \$c os nomes são registrados na ordem natural, como aparecem na obra;
+    \item \textbf{caracteres desconsiderados na ordenação}: se o título começa com um artigo, em português, inglês ou espanhol, o 2.\textsuperscript{o} indicador do campo 245 recebe o número de caracteres do artigo mais o espaço;
+    \item \textbf{pontuação ISBD}: os sinais `` : '', `` / '', `` ; '' e ``,'' são inseridos ao fim de cada subcampo, conforme o subcampo seguinte, e o ponto final é acrescentado sem duplicar pontuação existente;
+    \item \textbf{obras brasileiras}: ISBNs dos grupos de registro 65 e 85 recebem, no campo 008, o código de país \texttt{bl} e o código de idioma \texttt{por};
+    \item \textbf{dados ausentes}: na falta de local, editora ou data, são registradas as expressões próprias de cada código --- por exemplo, ``[Local de publicação não identificado]'' no RDA e ``[S.l.]'' no AACR2.
+\end{itemize}
+
+O \autoref{qua:exemplo-gerado} mostra o registro gerado para uma mesma obra nos dois padrões, evidenciando as diferenças discutidas na \autoref{subsec:rda}.
+
+\begin{quadro}[htbp]
+    \caption{Registro gerado pelo Cataloga+ para uma mesma obra em RDA e em AACR2}
+    \label{qua:exemplo-gerado}
+    \footnotesize
+    \textbf{RDA}
+\begin{verbatim}
+LDR 00000nam#a22000007i#4500
+001 9788500000003
+008 261105s2019####bl############000#|#por#d
+020 ## $a 9788500000003 $c R$ 39,90
+100 1# $a Azevedo, Aluísio.
+245 12 $a O cortiço / $c Aluísio Azevedo.
+250 ## $a 2. ed.
+264 #1 $a São Paulo : $b Editora Exemplo, $c 2019.
+300 ## $a 272 páginas ; $c 21 cm
+336 ## $a texto $b txt $2 rdacontent
+337 ## $a não mediado $b n $2 rdamedia
+338 ## $a volume $b nc $2 rdacarrier
+653 ## $a Literatura brasileira
+\end{verbatim}
+    \textbf{AACR2 (somente as linhas que diferem)}
+\begin{verbatim}
+LDR 00000nam#a22000007a#4500
+260 ## $a São Paulo : $b Editora Exemplo, $c 2019.
+300 ## $a 272 p. ; $c 21 cm.
+\end{verbatim}
+    \fonte{Elaborado pelo autor. Dados ilustrativos; ISBN e editora fictícios. Campo 005 omitido.}
+\end{quadro}
+% SUGESTÃO: substituir o exemplo acima por um registro real exportado pela
+% ferramenta (copiar da pré-visualização MARC de um livro do teste).
+
+\subsection{Pré-visualização do registro}
+\label{subsec:func-previsualizacao}
+
+O botão ``Visualizar MARC'' abre uma janela com o registro correspondente aos dados atuais do formulário, no padrão selecionado (RF10). O registro é exibido na notação usual da área: uma linha por campo, com a etiqueta, os dois indicadores e os subcampos precedidos de \$, e com as posições em branco representadas por \#. Como a pré-visualização é gerada a partir do mesmo código da exportação, o que o bibliotecário vê é exatamente o que será exportado. A \autoref{fig:marc-rda} e a \autoref{fig:marc-aacr2} mostram a mesma obra nos dois padrões.
+
+% As duas janelas são quase quadradas (735 x 807 e 735 x 726 px): limitadas
+% pela altura para caberem, juntas, em uma página.
+\begin{figure}[H]
+    \centering
+    \caption{Pré-visualização do registro MARC 21 segundo o RDA}
+    \label{fig:marc-rda}
+    \includegraphics[height=0.36\textheight, width=\textwidth, keepaspectratio]{dados/figuras/RevisaoMARCRDA}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \caption{Pré-visualização do registro MARC 21 segundo o AACR2}
+    \label{fig:marc-aacr2}
+    \includegraphics[height=0.36\textheight, width=\textwidth, keepaspectratio]{dados/figuras/RevisaoMARCAACR2}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\subsection{Exportação dos registros}
+\label{subsec:func-exportacao}
+
+A exportação pode ser feita de duas formas (RF11). O botão ``Exportar registro'', na página de um documento, gera um arquivo \texttt{.mrc} com o registro daquela obra, nomeado pelo ISBN. O botão ``Exportar lote'', na barra de paginação, gera um único arquivo com os registros de todos os documentos prontos, nomeado com a data e a quantidade de registros (por exemplo, \texttt{lote-2026-11-05-12-registros.mrc}). Se houver documentos ainda em busca ou com erro, uma caixa de confirmação informa quantos ficarão de fora antes de prosseguir (\autoref{fig:confirmacao}). Ao fim de cada exportação, um aviso no canto da tela informa o nome do arquivo e o padrão utilizado (RF18), como mostra a \autoref{fig:aviso}. Ações destrutivas, como limpar o lote, também exigem confirmação, com o botão de confirmação destacado em vermelho.
+
+% Capturas pequenas (351 x 154 e 334 x 58 px): ampliá-las demais as deixa borradas.
+\begin{figure}[H]
+    \centering
+    \caption{Confirmação da exportação de um lote incompleto}
+    \label{fig:confirmacao}
+    \includegraphics[width=0.5\textwidth]{dados/figuras/LoteIncompleto}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \caption{Aviso de exportação concluída}
+    \label{fig:aviso}
+    \includegraphics[width=0.5\textwidth]{dados/figuras/RegistroSucessoLote}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\subsection{Tema escuro e acessibilidade}
+\label{subsec:func-tema}
+
+Considerando que a catalogação ocupa longos períodos diante da tela, a interface oferece um tema escuro, alternado por um botão no cabeçalho (\autoref{fig:tema-escuro}). As cores dos dois temas são definidas por variáveis, o que garante que todos os componentes mudem de forma consistente. Os componentes interativos receberam rótulos e funções de acessibilidade --- como a indicação da página atual na paginação e o anúncio das mensagens de erro --- para que possam ser interpretados por leitores de tela.
+
+\begin{figure}[H]
+    \centering
+    \caption{Interface no tema escuro}
+    \label{fig:tema-escuro}
+    \includegraphics[width=\textwidth, height=0.40\textheight, keepaspectratio]{dados/figuras/TelaModoEscuro}
+    \fonte{Captura de tela do Cataloga+, elaborada pelo autor.}
+\end{figure}
+
+\section{Publicação da aplicação}
+\label{sec:publicacao}
+
+A versão de produção é gerada pelo Vite, que verifica os tipos, otimiza o código e produz um conjunto de arquivos estáticos (HTML, JavaScript e CSS). Esses arquivos são publicados na plataforma Vercel e acessados por um endereço web, sem instalação, nos principais navegadores (RNF08). A única configuração da publicação é a chave de acesso ao Google Books, informada como variável de ambiente; como essa chave fica visível no código executado pelo navegador, ela foi restrita, no console do Google, aos endereços do próprio Cataloga+, impedindo seu uso por outros sites.
+% TODO: incluir o endereço público da aplicação quando definido.
+
+\section{Situação dos requisitos}
+\label{sec:situacao-requisitos}
+
+O \autoref{qua:situacao-rf} apresenta a situação de cada requisito funcional do \autoref{ape:rf} na versão descrita neste capítulo.
+
+\begin{quadro}[htbp]
+    \centering
+    \caption{Situação dos requisitos funcionais}
+    \label{qua:situacao-rf}
+    \footnotesize
+    \begin{tabular}{|p{0.08\textwidth}|p{0.40\textwidth}|p{0.15\textwidth}|p{0.25\textwidth}|}
+        \hline
+        \textbf{ID} & \textbf{Requisito} & \textbf{Situação} & \textbf{Onde é descrito} \\ \hline
+        RF01 & Informar ISBNs & Implementado & \autoref{subsec:func-entrada} \\ \hline
+        RF02 & Leitura por leitor de código de barras & Implementado$^{*}$ & \autoref{subsec:func-entrada} \\ \hline
+        RF03 & Validação do ISBN & Implementado & \autoref{subsec:integracao} \\ \hline
+        RF04 & Consulta e consolidação em múltiplas fontes & Implementado & \autoref{subsec:integracao} \\ \hline
+        RF05 & Escolha da fonte prioritária & Implementado & \autoref{subsec:func-escolhas} \\ \hline
+        RF06 & Preenchimento automático & Implementado & \autoref{subsec:func-revisao} \\ \hline
+        RF07 & Edição dos dados & Implementado & \autoref{subsec:func-revisao} \\ \hline
+        RF08 & Lote de trabalho & Implementado & \autoref{subsec:func-lote} \\ \hline
+        RF09 & Gerenciamento do lote & Implementado & \autoref{subsec:func-lote} \\ \hline
+        RF10 & Pré-visualização do registro & Implementado & \autoref{subsec:func-previsualizacao} \\ \hline
+        RF11 & Exportação MARC 21 & Implementado & \autoref{subsec:func-exportacao} \\ \hline
+        RF12 & Padrão de descrição & Implementado & \autoref{subsec:func-escolhas} \\ \hline
+        RF13 & Aplicação automática de regras de catalogação & Implementado & \autoref{subsec:func-regras} \\ \hline
+        RF14 & Aviso de falha na busca & Implementado & \autoref{subsec:func-lote} \\ \hline
+        RF15 & Tempo limite das consultas & Implementado & \autoref{subsec:integracao} \\ \hline
+        RF16 & Preservação do lote & Implementado & \autoref{subsec:arq-armazenamento} \\ \hline
+        RF17 & Histórico de registros exportados & Pendente & --- \\ \hline
+        RF18 & Mensagens da aplicação & Implementado & \autoref{subsec:func-exportacao} \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor. $^{*}$Implementado; o teste com um leitor de código de barras físico está previsto para a etapa de avaliação.}
+\end{quadro}
+
+Permanecem pendentes o histórico dos registros exportados (RF17) e a criação de testes automatizados, especialmente para a geração dos registros MARC e a validação do ISBN. A verificação da importação dos registros no Koha e no Biblivre (RNF04) e a avaliação da ferramenta com bibliotecários, conduzidas por meio dos instrumentos descritos na \autoref{sec:instrumentos}, são apresentadas no capítulo de resultados.

@@ -1,0 +1,157 @@
+% =============================================================================
+% Capítulo 3 — Metodologia
+% Une o antigo Capítulo 3 (Ferramentas e Tecnologias) ao antigo Capítulo 4
+% (Metodologia). Recebe também a classificação da pesquisa (antiga seção 1.5).
+% Python, PyQt, Qt Designer, SQLite, Bcrypt, Marc4Py, Postman e ChatGPT saíram.
+%
+% Se o IFB exigir declaração do uso de ferramentas de IA generativa no
+% desenvolvimento ou na revisão do texto, incluir um parágrafo na seção 3.4.
+%
+% Revisão de nov./2026:
+%  - 3.1: abordagem passa a mencionar os indicadores descritivos dos questionários.
+%  - 3.2: etapa 7 desdobrada em dois questionários (adesão e avaliação de uso).
+%  - 3.4: retirada a descrição da proposta inicial (Python/PyQt/SQLite), conforme
+%    comentário do orientador na p. 22; o texto descreve apenas a solução adotada.
+%  - 3.5 (nova): instrumentos de avaliação e indicadores (Apêndices C e D).
+% =============================================================================
+
+\chapter{Metodologia}
+\label{cap:metodologia}
+
+Este capítulo apresenta os procedimentos metodológicos adotados no desenvolvimento do Cataloga+. Inicialmente, a pesquisa é classificada quanto à sua natureza, abordagem, objetivos e procedimentos técnicos. Em seguida, descrevem-se as etapas do trabalho, a forma de gestão do desenvolvimento e, por fim, as tecnologias empregadas na construção da ferramenta.
+
+\section{Classificação da pesquisa}
+\label{sec:classificacao}
+
+Quanto à natureza, a pesquisa é classificada como aplicada, pois tem como foco a geração de conhecimentos voltados à solução de um problema concreto \cite{gil2008}: a redução do esforço manual na catalogação descritiva de livros por meio de uma ferramenta de software.
+
+Quanto à abordagem, caracteriza-se como qualitativa, por estar voltada à compreensão e interpretação dos fenômenos relacionados ao desenvolvimento e à utilização da ferramenta proposta. Essa abordagem manifesta-se na análise das funcionalidades implementadas, da usabilidade da aplicação e de sua adequação aos objetivos estabelecidos, considerando a percepção de profissionais da área sobre a solução \cite{gil2008,creswell2014}. Para apoiar essa interpretação, os questionários aplicados aos profissionais (\autoref{sec:instrumentos}) produzem também indicadores descritivos --- como percentuais de concordância, taxa de conclusão de tarefas e pontuação de usabilidade ---, que não têm pretensão de generalização estatística, mas permitem organizar e comparar as percepções coletadas.
+
+Quanto aos objetivos, trata-se de uma pesquisa exploratória, uma vez que busca proporcionar maior familiaridade com o problema --- o processo manual de catalogação e o uso de fontes externas de metadados para otimizá-lo --- contribuindo para o aprimoramento das ideias propostas \cite{gil2008,prodanov2013}.
+
+Quanto aos procedimentos técnicos, a pesquisa apoia-se em levantamento bibliográfico, com base em materiais já publicados sobre catalogação, padrões bibliográficos e sistemas de bibliotecas, e caracteriza-se como estudo de caso, por envolver o desenvolvimento e a análise de uma ferramenta específica em um contexto definido. Apresenta, ainda, aspectos experimentais, relacionados aos testes de importação dos registros gerados em sistemas de gestão de bibliotecas \cite{gil2008}.
+
+\section{Etapas da pesquisa}
+\label{sec:etapas}
+
+O trabalho foi conduzido nas etapas descritas a seguir, que não ocorreram de forma estritamente sequencial: os resultados de cada uma retroalimentaram as demais ao longo do desenvolvimento.
+
+\begin{enumerate}
+    \item \textbf{Levantamento bibliográfico:} estudo dos conceitos de catalogação descritiva, dos códigos AACR2 e RDA, da ISBD, do formato MARC 21, da norma ISO 2709 e do funcionamento dos SIGBs, que fundamentam o \autoref{cap:fundamentacao} e as regras implementadas na ferramenta.
+    \item \textbf{Levantamento de requisitos:} análise, realizada em conjunto com uma bibliotecária, das etapas da catalogação de livros e dos pontos em que a digitação manual gera retrabalho. Os requisitos resultantes foram revisados ao longo do projeto, à medida que o escopo da ferramenta foi delimitado como apoio complementar ao SIGB, e encontram-se nos \autoref{ape:rf} e \autoref{ape:rnf}.
+    \item \textbf{Análise das fontes de dados:} consulta às APIs bibliográficas disponíveis com um conjunto de ISBNs de obras brasileiras e estrangeiras, a fim de verificar a cobertura de cada fonte, os campos que fornecem e as falhas que apresentam, o que orientou a estratégia de consolidação dos resultados.
+    \item \textbf{Prototipação:} elaboração da interface com foco no fluxo principal de uso --- informar o ISBN, revisar os dados e exportar o registro.
+    \item \textbf{Desenvolvimento incremental:} implementação da ferramenta em ciclos curtos, cada um entregando uma funcionalidade utilizável, como a consulta às fontes, o formulário de revisão, a geração do registro MARC, a pré-visualização do registro e o processamento em lote.
+    \item \textbf{Validação técnica:} importação dos arquivos \texttt{.mrc} gerados em SIGBs utilizados no Brasil --- Koha e Biblivre --- e conferência da correspondência entre os dados exportados e os registros exibidos por esses sistemas, nos padrões RDA e AACR2.
+    \item \textbf{Avaliação com profissionais:} realizada em dois momentos. No primeiro, um questionário de adesão, dirigido a bibliotecários em geral, verifica se as funcionalidades propostas atendem a necessidades reais da prática de catalogação. No segundo, bibliotecários utilizam a ferramenta na catalogação de um conjunto de obras e respondem a um questionário de avaliação sobre a usabilidade, a funcionalidade, a qualidade dos registros e o tempo empregado em comparação com a catalogação manual. Os dois instrumentos são descritos na \autoref{sec:instrumentos}.
+\end{enumerate}
+
+\section{Gestão do desenvolvimento}
+\label{sec:kanban}
+
+O desenvolvimento foi conduzido com base nos princípios do método Kanban, abordagem ágil voltada à visualização das tarefas, à limitação do trabalho em andamento e à melhoria contínua do fluxo de trabalho \cite{anderson2010}. A escolha deve-se à sua flexibilidade e adequação a um projeto desenvolvido individualmente: diferentemente de metodologias com ciclos formais, como o Scrum, o Kanban dispensa a definição rígida de iterações e cerimônias, permitindo repriorizar as tarefas à medida que novas necessidades eram identificadas --- como ocorreu, por exemplo, com a inclusão do padrão AACR2 após a constatação de que parte dos SIGBs não suporta o RDA.
+
+As atividades foram organizadas em um quadro com as etapas ``a fazer'', ``em andamento'' e ``concluído''. O controle de versão foi realizado com Git, com mensagens de \textit{commit} padronizadas segundo a convenção \textit{Conventional Commits}, que identifica cada alteração como nova funcionalidade, correção ou manutenção e torna o histórico do repositório um registro da evolução do projeto \cite{chacon2014}.
+
+\section{Tecnologias e ferramentas}
+\label{sec:tecnologias}
+
+O Cataloga+ foi desenvolvido como uma aplicação web executada inteiramente no navegador, coerente com seu papel de ferramenta de apoio ao SIGB, e não de sistema de gestão de biblioteca. Essa escolha traz três vantagens principais: a ferramenta é acessada por um endereço, sem instalação, em qualquer sistema operacional; dispensa-se a manutenção de servidor e banco de dados, já que os registros definitivos são armazenados pelo SIGB da biblioteca; e nenhum dado do usuário é enviado a servidores próprios, apenas o ISBN às fontes bibliográficas. Pelo mesmo motivo, a ferramenta não exige cadastro nem autenticação de usuários.
+
+O \autoref{qua:tecnologias} resume as tecnologias e ferramentas utilizadas, descritas em seguida.
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Tecnologias e ferramentas utilizadas no desenvolvimento}
+    \label{qua:tecnologias}
+    \begin{tabular}{|p{0.28\textwidth}|p{0.62\textwidth}|}
+        \hline
+        \textbf{Tecnologia} & \textbf{Finalidade} \\ \hline
+        TypeScript & Linguagem de programação da aplicação \\ \hline
+        React & Construção da interface em componentes \\ \hline
+        Vite & Servidor de desenvolvimento e geração da versão de produção \\ \hline
+        marcjs & Serialização dos registros MARC 21 no formato ISO 2709 \\ \hline
+        Web Storage API & Preservação do lote de trabalho no navegador \\ \hline
+        BrasilAPI, Open Library e Google Books & Fontes de metadados bibliográficos \\ \hline
+        Vercel & Hospedagem e publicação da aplicação \\ \hline
+        Git e GitHub & Controle de versão e repositório do código \\ \hline
+        Visual Studio Code & Ambiente de desenvolvimento \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor.}
+\end{quadro}
+
+\subsection{Linguagem e interface}
+\label{subsec:react}
+
+A aplicação foi desenvolvida em TypeScript, linguagem mantida pela Microsoft que acrescenta tipagem estática ao JavaScript \cite{typescript}. A tipagem permite declarar a estrutura dos dados de uma obra --- título, autores, edição, páginas e demais campos --- e verificar, antes da execução, que a camada de consulta, o formulário de revisão e o gerador de registros MARC utilizam essa estrutura de forma consistente.
+
+A interface foi construída com React, biblioteca para o desenvolvimento de interfaces baseada em componentes reutilizáveis que atualizam a tela automaticamente quando os dados mudam \cite{react}. Cada parte da tela --- o painel de busca, o formulário de revisão, a paginação do lote, a pré-visualização do registro --- corresponde a um componente independente, o que facilita a manutenção e a evolução da ferramenta. O Vite foi utilizado como ferramenta de desenvolvimento e de geração da versão de produção, que consiste em arquivos estáticos publicados na plataforma Vercel \cite{vite}.
+
+\subsection{Geração dos registros MARC}
+\label{subsec:marcjs}
+
+A serialização dos registros no formato ISO 2709 é realizada pela biblioteca marcjs, que implementa a leitura e a escrita de registros MARC em JavaScript \cite{marcjs}. A biblioteca é responsável pela parte estrutural do arquivo --- cálculo do líder, montagem do diretório e inserção dos caracteres separadores ---, enquanto as regras de catalogação foram implementadas no próprio Cataloga+: a escolha dos campos e indicadores, a pontuação ISBD, a inversão dos nomes dos autores para os pontos de acesso, os caracteres desconsiderados na ordenação de títulos iniciados por artigo e as diferenças entre os perfis RDA e AACR2.
+
+\subsection{Fontes de dados}
+\label{subsec:apis}
+
+Os metadados são obtidos de quatro fontes, consultadas em paralelo a partir do ISBN. As bases da CBL e do Mercado Editorial, que não oferecem API pública própria, são acessadas por meio da BrasilAPI \cite{brasilapi}; a Open Library \cite{openlibrary} e o Google Books \cite{googlebooks} são consultados diretamente, por meio de suas APIs. A consulta direta mostrou-se necessária porque, por intermédio da BrasilAPI, essas duas fontes raramente retornavam resultados, e porque a Open Library fornece, em sua própria API, dados ausentes nas demais, como a edição. Os resultados são consolidados segundo uma ordem de prioridade: os dados da fonte principal prevalecem e os campos ausentes são complementados pelas demais, cada uma com tempo limite de resposta para que uma fonte lenta não comprometa a busca.
+
+\subsection{Armazenamento no navegador}
+\label{subsec:storage}
+
+Por não possuir servidor, a ferramenta utiliza a Web Storage API, especificamente o \texttt{localStorage}, para preservar no próprio navegador o lote de trabalho em andamento e as preferências do usuário \cite{mdnstorage}. Dessa forma, o fechamento acidental da página não implica a perda das obras já consultadas e revisadas. Esses dados permanecem exclusivamente no computador do usuário, e o armazenamento definitivo dos registros continua sendo responsabilidade do SIGB para o qual são exportados.
+
+\section{Instrumentos de avaliação}
+\label{sec:instrumentos}
+
+A avaliação da ferramenta com profissionais da Biblioteconomia utiliza dois questionários, aplicados em formulário eletrônico e com públicos e objetivos distintos. Ambos combinam afirmações avaliadas em escala do tipo Likert de cinco pontos, que vai de ``discordo totalmente'' (1) a ``concordo totalmente'' (5) \cite{likert1932}, com questões abertas, nas quais o participante pode justificar suas respostas e apresentar sugestões.
+
+\subsection{Questionário de adesão}
+\label{subsec:questionario-adesao}
+
+O primeiro questionário (\autoref{ape:questionario-adesao}) é dirigido a bibliotecários e estudantes de Biblioteconomia em geral, que não precisam ter utilizado o Cataloga+. Seu objetivo é verificar se as funcionalidades propostas correspondem a necessidades reais da prática de catalogação e qual a disposição dos profissionais em adotar uma ferramenta desse tipo. Após caracterizar o perfil do respondente e sua rotina de catalogação --- SIGB utilizado, código de catalogação adotado, volume de obras catalogadas e tempo médio por registro ---, o questionário apresenta cada funcionalidade da ferramenta em uma frase e pede ao respondente que indique o quanto ela ajudaria em seu dia a dia. As afirmações finais baseiam-se no Modelo de Aceitação de Tecnologia (TAM, do inglês \textit{Technology Acceptance Model}), segundo o qual a adoção de uma tecnologia depende principalmente de sua utilidade percebida e de sua facilidade de uso percebida \cite{davis1989}.
+
+\subsection{Questionário de avaliação de uso}
+\label{subsec:questionario-avaliacao}
+
+O segundo questionário (\autoref{ape:questionario-avaliacao}) é dirigido aos bibliotecários que utilizarem a ferramenta na etapa de testes. Cada participante executa um roteiro de tarefas com um mesmo conjunto de obras --- buscar um ISBN, buscar um lote, revisar e corrigir os dados, pré-visualizar o registro e exportá-lo nos dois padrões --- e, ao final de cada tarefa, indica sua dificuldade em uma escala de sete pontos, a \textit{Single Ease Question} \cite{sauro2009}. Em seguida, responde ao questionário, que abrange:
+
+\begin{itemize}
+    \item a usabilidade, medida pela Escala de Usabilidade do Sistema (SUS, do inglês \textit{System Usability Scale}), composta por dez afirmações que resultam em uma pontuação de 0 a 100 \cite{brooke1996}. Entende-se usabilidade, conforme a ISO 9241-11, como a medida em que um sistema pode ser usado por determinados usuários para alcançar objetivos com eficácia, eficiência e satisfação em um contexto de uso específico \cite{iso9241};
+    \item a adequação funcional, isto é, se as funções disponíveis permitem realizar a catalogação pretendida de forma completa e correta \cite{iso25010};
+    \item a qualidade dos dados e dos registros gerados, incluindo quais campos precisaram ser corrigidos;
+    \item a eficiência percebida, comparando o tempo da catalogação com a ferramenta e o da catalogação manual;
+    \item a satisfação e a intenção de uso.
+\end{itemize}
+
+Além das respostas ao questionário, o pesquisador registra, para cada participante, o tempo de execução das tarefas e o número de campos alterados em cada registro antes da exportação.
+
+\subsection{Indicadores e análise}
+\label{subsec:indicadores}
+
+O \autoref{qua:indicadores} resume os indicadores extraídos de cada instrumento. As respostas em escala Likert são analisadas por estatística descritiva --- frequência de cada resposta, mediana e percentual de concordância, este último calculado como a proporção de respostas 4 e 5 ---, por se tratar de dados ordinais. A pontuação SUS é calculada conforme \citeonline{brooke1996}: nas afirmações ímpares subtrai-se 1 da resposta, nas pares subtrai-se a resposta de 5, e a soma é multiplicada por 2,5. Para interpretar a pontuação, utiliza-se a escala de adjetivos proposta por \citeonline{bangor2009}, que associa faixas de pontuação a classificações como ``boa'' e ``excelente''. As respostas abertas são analisadas por meio de análise de conteúdo \cite{bardin2016}, agrupando-se os comentários em categorias como dificuldades, sugestões e erros encontrados.
+
+\begin{quadro}[htbp]
+    \centering
+    \caption{Indicadores da avaliação com profissionais}
+    \label{qua:indicadores}
+    \footnotesize
+    \begin{tabular}{|p{0.27\textwidth}|p{0.40\textwidth}|p{0.23\textwidth}|}
+        \hline
+        \textbf{Indicador} & \textbf{Cálculo} & \textbf{Instrumento} \ \hline
+        Relevância de cada funcionalidade & Percentual de concordância e mediana das respostas & Questionário de adesão \ \hline
+        Utilidade e facilidade de uso percebidas & Mediana das afirmações de cada dimensão do TAM & Questionário de adesão \ \hline
+        Intenção de adoção & Percentual de respondentes que concordam que usariam a ferramenta & Ambos \ \hline
+        Taxa de conclusão das tarefas & Tarefas concluídas sem ajuda / tarefas executadas & Roteiro de tarefas \ \hline
+        Facilidade das tarefas & Média da \textit{Single Ease Question} por tarefa (1 a 7) & Roteiro de tarefas \ \hline
+        Usabilidade & Pontuação SUS média (0 a 100) e classificação & Questionário de avaliação \ \hline
+        Tempo por registro & Tempo médio com a ferramenta e redução percentual em relação ao tempo manual informado & Roteiro de tarefas \ \hline
+        Qualidade dos dados recuperados & Média de campos corrigidos por registro e campos mais corrigidos & Roteiro de tarefas \ \hline
+        Adequação funcional e qualidade do registro & Percentual de concordância das afirmações correspondentes & Questionário de avaliação \ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor.}
+\end{quadro}
+
+A participação nos dois questionários é voluntária e anônima, e cada formulário inicia com um termo de consentimento livre e esclarecido que informa o objetivo da pesquisa, o tempo estimado de resposta e o uso exclusivamente acadêmico dos dados. Por se tratar de pesquisa de opinião com participantes não identificados, ela se enquadra nas hipóteses previstas na Resolução n.\textsuperscript{o} 510/2016 do Conselho Nacional de Saúde, que dispensa o registro e a avaliação pelo sistema de comitês de ética em pesquisa \cite{cns2016}.
+% VERIFICAR com o orientador/coordenação se o IFB exige submissão ao CEP mesmo assim.

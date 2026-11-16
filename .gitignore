@@ -26,6 +26,9 @@ coverage
 # Registros MARC exportados durante testes
 *.mrc
 
+# Resultados do script de avaliação das fontes (npm run avaliar)
+/avaliacao/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

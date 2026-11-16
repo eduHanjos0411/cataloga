@@ -74,20 +74,55 @@ function mergeSubjects(books: BookFormState[]): string[] | undefined {
   return subjects.size > 0 ? [...subjects.values()] : undefined;
 }
 
-type ProviderResponse = { status: "found"; data: Record<string, unknown> } | { status: "not-found" | "error" };
+export type ProviderResponse =
+  | { status: "found"; data: Record<string, unknown> }
+  | { status: "not-found" | "error" | "timeout" };
 
 export type BookSearchResult =
   | { status: "found"; book: BookFormState }
   | { status: "not-found" | "invalid-isbn" | "unavailable" };
 
-async function fetchFromProvider(isbn: string, provider: Provider): Promise<ProviderResponse> {
+/** Consulta um único provedor; erro e estouro do tempo limite contam como falha do provedor. */
+export async function fetchFromProvider(isbn: string, provider: Provider): Promise<ProviderResponse> {
   try {
-    // Estouro do tempo limite rejeita a promessa com TimeoutError e conta como falha do provedor
     const data = await PROVIDER_FETCHERS[provider](isbn, AbortSignal.timeout(PROVIDER_TIMEOUT_MS));
     return data ? { status: "found", data } : { status: "not-found" };
-  } catch {
-    return { status: "error" };
+  } catch (error) {
+    return { status: error instanceof DOMException && error.name === "TimeoutError" ? "timeout" : "error" };
   }
+}
+
+/** Converte a resposta de um provedor para BookFormState, registrando de qual provedor ela veio. */
+export function toBook(data: Record<string, unknown>, provider: Provider, isbn: string): BookFormState {
+  return normalizeBookData({ ...data, provider: data.provider ?? provider }, isbn);
+}
+
+/**
+ * Combina os resultados dos provedores, já em ordem de prioridade: o primeiro prevalece,
+ * os campos vazios são completados pelos seguintes, em ordem, e os assuntos são reunidos.
+ */
+export function consolidateBooks([primary, ...fallbacks]: BookFormState[]): BookFormState | undefined {
+  if (!primary) return undefined;
+
+  const result: BookFormState = { ...primary };
+  const contributors = new Set([primary.provider]);
+
+  for (const fallback of fallbacks) {
+    for (const field of FILLABLE_FIELDS) {
+      if (isFieldEmpty(result, field) && !isFieldEmpty(fallback, field)) {
+        Object.assign(result, { [field]: fallback[field] });
+        contributors.add(fallback.provider);
+      }
+    }
+  }
+
+  result.subjects = mergeSubjects([primary, ...fallbacks]);
+  for (const book of fallbacks) {
+    if (book.subjects?.some((subject) => !MACHINE_TAG.test(subject))) contributors.add(book.provider);
+  }
+
+  result.provider = [...contributors].join(" + ");
+  return result;
 }
 
 /**
@@ -106,34 +141,14 @@ export async function fetchBookData(isbn: string, provider?: Provider): Promise<
 
   const responses = await Promise.all(priority.map((item) => fetchFromProvider(isbn, item)));
   const books = responses.flatMap((response, index) =>
-    response.status === "found"
-      ? [normalizeBookData({ ...response.data, provider: response.data.provider ?? priority[index] }, isbn)]
-      : [],
+    response.status === "found" ? [toBook(response.data, priority[index], isbn)] : [],
   );
 
-  const [primary, ...fallbacks] = books;
-  if (!primary) {
-    if (responses.some((response) => response.status === "error")) return { status: "unavailable" };
-    return { status: "not-found" };
+  const book = consolidateBooks(books);
+  if (!book) {
+    const failed = responses.some((response) => response.status === "error" || response.status === "timeout");
+    return { status: failed ? "unavailable" : "not-found" };
   }
 
-  const result: BookFormState = { ...primary };
-  const contributors = new Set([primary.provider]);
-
-  for (const fallback of fallbacks) {
-    for (const field of FILLABLE_FIELDS) {
-      if (isFieldEmpty(result, field) && !isFieldEmpty(fallback, field)) {
-        Object.assign(result, { [field]: fallback[field] });
-        contributors.add(fallback.provider);
-      }
-    }
-  }
-
-  result.subjects = mergeSubjects(books);
-  for (const book of fallbacks) {
-    if (book.subjects?.some((subject) => !MACHINE_TAG.test(subject))) contributors.add(book.provider);
-  }
-
-  result.provider = [...contributors].join(" + ");
-  return { status: "found", book: result };
+  return { status: "found", book };
 }

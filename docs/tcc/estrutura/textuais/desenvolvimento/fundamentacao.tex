@@ -1,0 +1,340 @@
+% =============================================================================
+% Capítulo 2 — Fundamentação teórica (revisão de nov./2026)
+%
+% Alterações em relação à versão anotada pelo orientador:
+%  - 2.1: referência mais recente ao lado de Tauber (1954) sobre o custo da
+%    catalogação (comentário do orientador na p. 14).
+%  - 2.2: ISBD, AACR2 e RDA explicados conceitualmente para leitores fora da
+%    Biblioteconomia (observação feita em reunião); IFLA por extenso na primeira
+%    menção (comentário na p. 15); lista de diferenças reescrita e com a
+%    pontuação revista (comentário "rever pontuação", p. 15); inclusão do
+%    IFLA LRM e do RDA Toolkit reestruturado como referências mais atuais.
+%  - 2.3: o que é campo, etiqueta, indicador e subcampo; blocos de etiquetas;
+%    quadro com todos os campos gerados pelo Cataloga+; posições do líder e
+%    do campo 008; leitura comentada de um campo.
+%  - 2.5: OPAC por extenso na primeira menção.
+%
+% Requer as novas entradas de docs/tcc/referencias-novas.bib.
+% =============================================================================
+
+\chapter{Fundamentação teórica}
+\label{cap:fundamentacao}
+
+Este capítulo apresenta os conceitos da Biblioteconomia e da Ciência da Informação que sustentam o desenvolvimento do Cataloga+: o processo de catalogação, os códigos que orientam a descrição bibliográfica, o formato utilizado para codificar e intercambiar registros, o identificador a partir do qual a ferramenta opera e os sistemas aos quais os registros gerados se destinam. Como parte do público deste trabalho não pertence à área da Biblioteconomia, cada padrão é apresentado a partir de sua finalidade, acompanhado de exemplos baseados em uma mesma obra.
+
+\section{O processo de catalogação}
+\label{sec:catalogacao}
+
+A catalogação pode ser compreendida como o processo responsável por representar de forma padronizada os recursos informacionais, possibilitando sua identificação, localização e recuperação dentro de um sistema \cite{mey2009}. Esse processo resulta em registros bibliográficos elaborados com base em regras previamente estabelecidas, o que garante consistência entre os registros de uma mesma instituição e interoperabilidade entre instituições diferentes. A catalogação funciona, assim, como ponte entre o acervo e o usuário: é por meio dos pontos de acesso criados no registro --- autor, título, assunto --- que o usuário encontra o recurso de que necessita \cite{svenonius2000}.
+
+No Brasil, costuma-se dividir o processo em catalogação descritiva e catalogação temática (ou de assunto). A primeira é responsável pela identificação física e formal do recurso, registrando elementos como título, indicação de responsabilidade, edição, dados de publicação e descrição física; a segunda representa o conteúdo do recurso por meio de assuntos, descritores e classificação \cite{mey2009}. O Cataloga+ atua predominantemente na catalogação descritiva, oferecendo como apoio à catalogação temática apenas os termos de assunto fornecidos pelas fontes consultadas, registrados como termos não controlados e sujeitos à revisão do bibliotecário.
+
+A catalogação é reconhecida, desde os estudos clássicos sobre serviços técnicos, como uma das atividades mais onerosas de uma biblioteca \cite{tauber1954}, diagnóstico que permanece atual: estudos mais recentes sobre o futuro dos catálogos continuam apontando a necessidade de reduzir o custo e o tempo da produção de registros, sobretudo por meio do reaproveitamento de dados já existentes e da automação das etapas repetitivas \cite{calhoun2006,joudrey2018}.
+% VERIFICAR: conferir nas obras de Calhoun (2006) e Joudrey, Taylor e Wisser (2018)
+% a página exata do argumento sobre custo e, se desejar, usar citação direta.
+Para reduzir esse custo, consolidou-se a prática da catalogação cooperativa (ou catalogação por cópia), na qual uma instituição reaproveita registros produzidos por outras, como os disponibilizados pela Biblioteca Nacional ou por redes de bibliotecas, adaptando-os à sua realidade \cite{mey2009}. O reaproveitamento, porém, depende de que o registro exista em uma base acessível e de que a biblioteca disponha de meios técnicos para importá-lo. Quando essas condições não se verificam --- situação comum em bibliotecas de pequeno porte e em obras recentes ou de editoras menores ---, a descrição volta a ser feita manualmente, campo a campo.
+
+Mesmo com o apoio dos sistemas informatizados, portanto, a catalogação mantém uma forte dependência de processos manuais, nos quais o bibliotecário insere, revisa e adapta os dados individualmente, tornando a atividade repetitiva e suscetível a erros humanos \cite{mey2009}. O tempo dedicado a essa tarefa reflete-se diretamente na disponibilização das obras ao público e no tempo que o profissional pode dedicar ao atendimento, o que contraria a quarta lei de \citeonline{ranganathan1931}: ``poupe o tempo do leitor''.
+
+% -----------------------------------------------------------------------------
+\section{Códigos de catalogação: da ISBD e do AACR2 ao RDA}
+\label{sec:codigos}
+
+Para que registros produzidos por pessoas e instituições diferentes sejam comparáveis, a descrição bibliográfica segue normas comuns. Uma analogia útil para o leitor de fora da área é a das normas de referências bibliográficas: assim como a ABNT determina quais dados de uma obra devem constar em uma referência e em que ordem e com que pontuação devem ser escritos, os \textbf{códigos de catalogação} determinam quais elementos devem compor o registro de um recurso em um catálogo, de que fonte cada elemento deve ser extraído e de que forma deve ser transcrito. Três padrões interessam diretamente a este trabalho: a ISBD, que fixa a ordem e a pontuação da descrição; o AACR2, código utilizado por décadas nas bibliotecas brasileiras; e o RDA, seu sucessor.
+
+\subsection{ISBD: a ordem e a pontuação da descrição}
+\label{subsec:isbd}
+
+A ISBD (\textit{International Standard Bibliographic Description}, ou Descrição Bibliográfica Internacional Normalizada) é um padrão mantido pela Federação Internacional de Associações e Instituições Bibliotecárias (IFLA, do inglês \textit{International Federation of Library Associations and Institutions}). Ela organiza a descrição de um recurso em \textbf{áreas}, sempre na mesma ordem, e prescreve uma \textbf{pontuação convencional} que antecede cada elemento \cite{isbd2011}. O \autoref{qua:isbd-areas} apresenta as áreas da ISBD e o \autoref{qua:isbd-pontuacao}, os sinais de pontuação mais frequentes na descrição de livros.
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Áreas da descrição segundo a ISBD}
+    \label{qua:isbd-areas}
+    \footnotesize
+    \begin{tabular}{|p{0.07\textwidth}|p{0.40\textwidth}|p{0.42\textwidth}|}
+        \hline
+        \textbf{Área} & \textbf{Conteúdo} & \textbf{Exemplo} \\ \hline
+        0 & Forma do conteúdo e tipo de mídia & Texto (visual) : sem mediação \\ \hline
+        1 & Título e indicação de responsabilidade & Dom Casmurro / Machado de Assis \\ \hline
+        2 & Edição & 2. ed. \\ \hline
+        3 & Área específica do material ou tipo de recurso & (não se aplica a livros impressos) \\ \hline
+        4 & Publicação, produção, distribuição etc. & Rio de Janeiro : Garnier, 1899 \\ \hline
+        5 & Descrição física & 256 p. \\ \hline
+        6 & Série & (Coleção Clássicos) \\ \hline
+        7 & Notas & Inclui índice \\ \hline
+        8 & Identificador do recurso e condições de disponibilidade & ISBN 978-85-00-00000-3 : R\$ 39,90 \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{isbd2011}. Exemplos ilustrativos.}
+\end{quadro}
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Principais sinais de pontuação prescritos pela ISBD}
+    \label{qua:isbd-pontuacao}
+    \footnotesize
+    \begin{tabular}{|p{0.12\textwidth}|p{0.42\textwidth}|p{0.35\textwidth}|}
+        \hline
+        \textbf{Sinal} & \textbf{Antecede} & \textbf{Exemplo} \\ \hline
+        .~---~ & Cada nova área da descrição & \ldots{} Machado de Assis. --- Rio de Janeiro \ldots \\ \hline
+        \texttt{~:~} & Subtítulo (outras informações sobre o título) e nome do editor & Memórias : romance; Rio de Janeiro : Garnier \\ \hline
+        \texttt{~/~} & Primeira indicação de responsabilidade & Dom Casmurro / Machado de Assis \\ \hline
+        \texttt{~;~} & Indicações de responsabilidade seguintes e dimensões & / texto de X ; ilustrações de Y; 256 p. ; 21 cm \\ \hline
+        \texttt{,~} & Data de publicação & Garnier, 1899 \\ \hline
+        \texttt{~=~} & Título paralelo, em outro idioma & Dom Casmurro = Dom Casmurro \\ \hline
+        \texttt{[~]} & Informação que não consta no próprio recurso & [S.l.]; [Local de publicação não identificado] \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{isbd2011}.}
+\end{quadro}
+
+Essa pontuação tem uma função que vai além da estética: ela permite reconhecer o papel de cada elemento independentemente do idioma do registro. Um catalogador que não lê japonês, por exemplo, sabe que o trecho após a barra é uma indicação de responsabilidade e que o trecho após os dois-pontos, na área 4, é o nome do editor. Por esse motivo, a pontuação ISBD foi incorporada tanto ao AACR2 quanto, de forma opcional, ao RDA, e o Cataloga+ a aplica automaticamente nos registros que gera.
+
+\subsection{AACR2: o código das fichas catalográficas}
+\label{subsec:aacr2}
+
+O AACR2 (\textit{Anglo-American Cataloguing Rules}, 2.\textsuperscript{a} edição), publicado no Brasil como Código de Catalogação Anglo-Americano, foi por décadas o principal código adotado pelas bibliotecas brasileiras \cite{jsc2005}. Ele se divide em duas partes. A primeira trata da \textbf{descrição}: como transcrever título, edição, publicação e descrição física de cada tipo de material, seguindo as áreas da ISBD. A segunda trata dos \textbf{pontos de acesso}, isto é, dos elementos pelos quais o registro poderá ser encontrado no catálogo --- o autor principal, os demais responsáveis, o título --- e da forma padronizada desses elementos.
+
+Um exemplo ajuda a compreender o conceito de ponto de acesso. No registro de uma obra de Machado de Assis, o nome do autor aparece duas vezes: na indicação de responsabilidade, transcrito como consta na folha de rosto (``Machado de Assis''), e no ponto de acesso, em forma padronizada e invertida (``Assis, Machado de''), que permite reunir no catálogo, em ordem alfabética de sobrenome, todas as obras do mesmo autor. Regras como essa --- a inversão do nome, a escolha do sobrenome em nomes compostos e o tratamento de termos como ``Filho'' e ``Júnior'' --- estão entre as que o Cataloga+ automatiza.
+
+Por ter sido concebido na época dos catálogos em fichas, em que o espaço era limitado, o AACR2 faz uso extensivo de abreviaturas: ``p.'' para páginas, ``ed.'' para edição, ``v.'' para volume. Quando um dado não pode ser identificado, emprega abreviaturas latinas entre colchetes: \textit{[S.l.]} (\textit{sine loco}, sem local), \textit{[s.n.]} (\textit{sine nomine}, sem nome do editor) e \textit{[s.d.]} (sem data). Para indicar que o recurso não é um livro impresso, acrescenta ao título uma designação geral do material (DGM), como ``[recurso eletrônico]''. O código também adota a chamada ``regra de três'': quando uma obra tem mais de três autores, a entrada principal passa a ser o título e apenas o primeiro autor é mencionado, seguido de ``et al.''.
+
+\subsection{RDA: a descrição orientada ao usuário e aos dados}
+\label{subsec:rda}
+
+Concebido para o catálogo em fichas, o AACR2 mostrou limitações diante da diversidade de recursos digitais e dos catálogos em ambiente web. Como resposta, foi publicado em 2010 o RDA (\textit{Resource Description and Access}, ou Recursos: Descrição e Acesso), sucessor do AACR2 \cite{rda2010}. Diferentemente de seu antecessor, o RDA não é organizado por tipo de material, mas por \textbf{entidades} e pelas \textbf{tarefas do usuário} que o registro deve apoiar: encontrar, identificar, selecionar e obter um recurso.
+
+Essa organização vem do modelo conceitual FRBR (\textit{Functional Requirements for Bibliographic Records}, ou Requisitos Funcionais para Registros Bibliográficos), que distingue quatro níveis de um mesmo recurso \cite{ifla1998frbr}:
+
+\begin{itemize}
+    \item \textbf{obra}: a criação intelectual em abstrato --- o romance \textit{Dom Casmurro}, independentemente de qualquer edição;
+    \item \textbf{expressão}: a realização da obra em uma forma específica --- o texto original em português ou uma tradução para o inglês;
+    \item \textbf{manifestação}: a materialização de uma expressão em uma edição --- por exemplo, a edição da Garnier de 1899 ou uma edição de bolso de 2016;
+    \item \textbf{item}: o exemplar físico que a biblioteca possui em sua estante.
+\end{itemize}
+
+Em 2017, a IFLA consolidou o FRBR e os modelos correlatos em um único modelo, o IFLA LRM (\textit{Library Reference Model}), que mantém essas entidades e acrescenta outras, como agente, lugar e intervalo de tempo \cite{riva2017lrm}. O RDA foi então reestruturado para alinhar-se ao novo modelo, e sua versão oficial passou a ser mantida em uma plataforma \textit{on-line}, o RDA Toolkit \cite{rdatoolkit}. A catalogação descritiva de livros, objeto do Cataloga+, ocorre no nível da manifestação: é a edição que o bibliotecário tem em mãos que será descrita.
+
+Na prática da catalogação de livros, as diferenças entre o RDA e o AACR2 se manifestam sobretudo nos pontos a seguir, sintetizados no \autoref{qua:aacr2-rda}:
+
+\begin{itemize}
+    \item \textbf{abreviaturas}: o RDA registra os termos por extenso (``416 páginas'', e não ``416 p.'');
+    \item \textbf{dados desconhecidos}: as abreviaturas latinas \textit{[S.l.]}, \textit{[s.n.]} e \textit{[s.d.]} dão lugar a expressões descritivas, como ``[Local de publicação não identificado]'';
+    \item \textbf{tipo de recurso}: a designação geral do material acrescentada ao título é substituída por três elementos independentes --- tipo de conteúdo (por exemplo, texto), tipo de mídia (por exemplo, não mediado, isto é, legível sem equipamento) e tipo de suporte (por exemplo, volume);
+    \item \textbf{publicação}: as funções de produção, publicação, distribuição e fabricação passam a ser registradas separadamente;
+    \item \textbf{responsabilidade}: a ``regra de três'' deixa de ser obrigatória, e todos os autores podem ser registrados.
+\end{itemize}
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Principais diferenças entre o AACR2 e o RDA na descrição de livros}
+    \label{qua:aacr2-rda}
+    \footnotesize
+    \begin{tabular}{|p{0.20\textwidth}|p{0.33\textwidth}|p{0.36\textwidth}|}
+        \hline
+        \textbf{Aspecto} & \textbf{AACR2} & \textbf{RDA} \\ \hline
+        Organização & Por tipo de material & Por entidades (FRBR/LRM) e tarefas do usuário \\ \hline
+        Extensão & 256 p. & 256 páginas \\ \hline
+        Local desconhecido & [S.l.] & [Local de publicação não identificado] \\ \hline
+        Editor desconhecido & [s.n.] & [editora não identificada] \\ \hline
+        Data desconhecida & [s.d.] & [data de publicação não identificada] \\ \hline
+        Tipo de recurso & DGM no título: [recurso eletrônico] & Tipo de conteúdo, de mídia e de suporte, em elementos próprios \\ \hline
+        Publicação & Elemento único de publicação & Produção, publicação, distribuição e fabricação distintas \\ \hline
+        Mais de três autores & Entrada pelo título; primeiro autor + et al. & Todos os autores podem ser registrados \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{jsc2005} e \citeonline{rda2010}.}
+\end{quadro}
+
+A transição entre os códigos, contudo, não ocorre de maneira uniforme. Parte dos SIGBs utilizados no Brasil ainda estrutura sua catalogação segundo o AACR2 e não contempla os elementos introduzidos pelo RDA. É o caso do Biblivre, software livre amplamente adotado por bibliotecas públicas e de pequeno porte no país.
+% TODO: citar a fonte (documentação do Biblivre ou resultado do teste de importação descrito no Capítulo 5).
+Por essa razão, o Cataloga+ adota o RDA como padrão, por ser o código vigente, mas permite gerar os registros também segundo o AACR2, de modo a garantir compatibilidade com os sistemas que ainda não migraram. A escolha é feita pelo bibliotecário antes da exportação.
+
+% -----------------------------------------------------------------------------
+\section{O formato MARC 21 e o padrão ISO 2709}
+\label{sec:marc}
+
+Os códigos de catalogação definem \emph{o que} registrar e \emph{como} transcrever, mas não indicam como esses dados devem ser armazenados em um computador. Para isso, é necessário um formato que identifique cada elemento da descrição de modo que um programa saiba, por exemplo, onde está o título e onde está o autor. O formato MARC (\textit{Machine Readable Cataloging}, ou Catalogação Legível por Máquina) foi desenvolvido pela Library of Congress, a biblioteca nacional dos Estados Unidos, na década de 1960 e, em 1999, deu origem ao MARC 21, resultado da harmonização das versões estadunidense e canadense do formato \cite{loc2023}. O MARC 21 é o formato mais difundido para armazenamento e intercâmbio de registros bibliográficos e é aceito para importação pelos principais SIGBs.
+
+\subsection{Estrutura de um registro MARC 21}
+\label{subsec:marc-estrutura}
+
+Um registro MARC pode ser comparado a um formulário em que cada pergunta tem um número fixo. Em vez de escrever ``Título:'' antes do título, o registro utiliza uma \textbf{etiqueta} (\textit{tag}) numérica de três dígitos que identifica o campo: 245 significa ``título e indicação de responsabilidade'' em qualquer biblioteca que use o formato, assim como 100 significa ``autor principal pessoal'' \cite{furrie2009}. O registro é composto por quatro tipos de elemento:
+
+\begin{itemize}
+    \item \textbf{líder} (\textit{leader}): sequência de 24 caracteres no início do registro, cujas posições informam ao sistema que tipo de registro está sendo lido --- por exemplo, se é um registro novo ou corrigido, se descreve um livro ou um mapa, se segue o AACR2 ou inclui pontuação ISBD;
+    \item \textbf{campos de controle} (etiquetas 001 a 009): contêm dados codificados, sem subdivisões, como o número de controle do registro (001), a data e hora da última alteração (005) e um conjunto de 40 posições com códigos sobre o recurso (008);
+    \item \textbf{campos de dados} (etiquetas 010 a 999): contêm a descrição propriamente dita e possuem dois \textbf{indicadores} e um ou mais \textbf{subcampos};
+    \item \textbf{subcampos}: subdivisões de um campo de dados, identificadas por um código de uma letra ou dígito precedido de um delimitador, convencionalmente representado por um cifrão (\$). No campo 245, por exemplo, \$a contém o título principal, \$b o subtítulo e \$c a indicação de responsabilidade.
+\end{itemize}
+
+Os \textbf{indicadores} são duas posições, logo após a etiqueta, que refinam a interpretação do campo. Cada posição contém um dígito ou um espaço em branco, representado na notação MARC pelo símbolo \#. No campo 100, o primeiro indicador ``1'' informa que o nome está registrado na ordem ``sobrenome, prenome''. No campo 245, o segundo indicador informa quantos caracteres iniciais do título devem ser desconsiderados na ordenação alfabética, de forma que ``O Alienista'' (segundo indicador 2, correspondente a ``O'' e ao espaço) seja ordenado por ``Alienista'', e não pela letra O.
+
+As etiquetas seguem uma lógica por centenas, o que facilita sua memorização, conforme apresenta o \autoref{qua:marc-blocos}.
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Blocos de etiquetas do MARC 21 para dados bibliográficos}
+    \label{qua:marc-blocos}
+    \footnotesize
+    \begin{tabular}{|p{0.12\textwidth}|p{0.45\textwidth}|p{0.30\textwidth}|}
+        \hline
+        \textbf{Bloco} & \textbf{Conteúdo} & \textbf{Exemplos} \\ \hline
+        0XX & Informações de controle, números e códigos & 001, 005, 008, 020 (ISBN) \\ \hline
+        1XX & Entrada principal (autor principal) & 100 (nome pessoal) \\ \hline
+        2XX & Título, edição e publicação & 245, 250, 260, 264 \\ \hline
+        3XX & Descrição física e tipo de recurso & 300, 336, 337, 338 \\ \hline
+        4XX & Indicação de série & 490 \\ \hline
+        5XX & Notas & 520 (resumo) \\ \hline
+        6XX & Assuntos & 650, 653 \\ \hline
+        7XX & Entradas secundárias (outros responsáveis) & 700 (nome pessoal) \\ \hline
+        8XX & Séries, localização e acesso eletrônico & 856 (endereço eletrônico) \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{loc2023} e \citeonline{furrie2009}.}
+\end{quadro}
+
+\subsection{Campos gerados pelo Cataloga+}
+\label{subsec:marc-campos}
+
+O Cataloga+ não utiliza todos os campos do MARC 21, que são centenas, mas apenas os necessários para a descrição de um livro a partir dos dados obtidos pelo ISBN. O \autoref{qua:marc-campos} descreve cada um deles, com seus indicadores e subcampos, e indica em qual padrão de catalogação é utilizado.
+
+\begin{quadro}[htbp]
+    \centering
+    \caption{Campos MARC 21 gerados pelo Cataloga+}
+    \label{qua:marc-campos}
+    \scriptsize
+    \begin{tabular}{|p{0.07\textwidth}|p{0.22\textwidth}|p{0.45\textwidth}|p{0.14\textwidth}|}
+    \hline
+    \textbf{Campo} & \textbf{Nome} & \textbf{Indicadores e subcampos utilizados} & \textbf{Padrão} \\ \hline
+    Líder & Líder do registro & 24 posições; ver \autoref{qua:marc-lider} & RDA e AACR2 \\ \hline
+    001 & Número de controle & Identificador do registro; o Cataloga+ utiliza o próprio ISBN & RDA e AACR2 \\ \hline
+    005 & Data e hora da última transação & Formato AAAAMMDDhhmmss.f & RDA e AACR2 \\ \hline
+    008 & Elementos de dados de tamanho fixo & 40 posições codificadas; ver \autoref{qua:marc-008} & RDA e AACR2 \\ \hline
+    020 & ISBN & \$a ISBN; \$c condições de disponibilidade (preço) & RDA e AACR2 \\ \hline
+    100 & Entrada principal --- nome pessoal & 1.\textsuperscript{o} indicador 1 (sobrenome); \$a nome do primeiro autor na forma invertida & RDA e AACR2 \\ \hline
+    245 & Título e indicação de responsabilidade & 1.\textsuperscript{o} indicador: 1 se há autor no campo 100, 0 se não há; 2.\textsuperscript{o} indicador: caracteres desconsiderados na ordenação (0 a 9); \$a título; \$b subtítulo; \$c responsabilidade; \$h DGM & \$h apenas no AACR2 \\ \hline
+    250 & Edição & \$a indicação de edição (por exemplo, ``2. ed.'') & RDA e AACR2 \\ \hline
+    260 & Publicação, distribuição etc. & \$a local; \$b editor; \$c data & AACR2 \\ \hline
+    264 & Produção, publicação, distribuição, fabricação & 2.\textsuperscript{o} indicador 1 (publicação); \$a local; \$b editor; \$c data & RDA \\ \hline
+    300 & Descrição física & \$a extensão (número de páginas); \$c dimensões (altura em centímetros) & RDA e AACR2 \\ \hline
+    336 & Tipo de conteúdo & \$a termo (texto); \$b código (txt); \$2 vocabulário de origem (rdacontent) & RDA \\ \hline
+    337 & Tipo de mídia & \$a termo (não mediado ou computador); \$b código (n ou c); \$2 rdamedia & RDA \\ \hline
+    338 & Tipo de suporte & \$a termo (volume ou recurso \textit{on-line}); \$b código (nc ou cr); \$2 rdacarrier & RDA \\ \hline
+    520 & Resumo & \$a texto do resumo (sinopse) & RDA e AACR2 \\ \hline
+    653 & Termo de indexação não controlado & \$a termo de assunto; um campo por assunto & RDA e AACR2 \\ \hline
+    700 & Entrada secundária --- nome pessoal & 1.\textsuperscript{o} indicador 1 (sobrenome); \$a nome de cada autor adicional na forma invertida & RDA e AACR2 \\ \hline
+    856 & Localização e acesso eletrônico & 1.\textsuperscript{o} indicador 4 (HTTP); 2.\textsuperscript{o} indicador 2 (recurso relacionado); \$3 ``Capa''; \$u endereço da imagem da capa & RDA e AACR2 \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{loc2023}.}
+\end{quadro}
+
+Dois desses campos merecem um comentário. O campo 653 registra \textbf{termos não controlados}, isto é, palavras-chave que não foram extraídas de um vocabulário padronizado, como uma lista de cabeçalhos de assunto. Os assuntos fornecidos pelas fontes consultadas pelo Cataloga+ têm essa natureza e, por isso, não são registrados no campo 650, reservado a termos controlados; cabe ao bibliotecário, se desejar, convertê-los em cabeçalhos do vocabulário adotado pela biblioteca. Já os campos 336 a 338 trazem, no subcampo \$2, o nome da lista de termos de onde o valor foi retirado, o que permite a qualquer sistema interpretar o código sem ambiguidade.
+
+O líder e o campo 008 não possuem subcampos: o significado de cada caractere depende de sua posição. O \autoref{qua:marc-lider} e o \autoref{qua:marc-008} apresentam as posições preenchidas pelo Cataloga+.
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Posições do líder preenchidas pelo Cataloga+}
+    \label{qua:marc-lider}
+    \footnotesize
+    \begin{tabular}{|p{0.12\textwidth}|p{0.36\textwidth}|p{0.40\textwidth}|}
+        \hline
+        \textbf{Posição} & \textbf{Significado} & \textbf{Valor gerado} \\ \hline
+        00--04 & Tamanho do registro & Calculado na serialização \\ \hline
+        05 & Situação do registro & n (novo) \\ \hline
+        06 & Tipo de registro & a (material textual) \\ \hline
+        07 & Nível bibliográfico & m (monografia) \\ \hline
+        09 & Codificação de caracteres & a (Unicode) \\ \hline
+        12--16 & Endereço base dos dados & Calculado na serialização \\ \hline
+        17 & Nível de codificação & 7 (nível mínimo) \\ \hline
+        18 & Forma de catalogação descritiva & i (pontuação ISBD, RDA) ou a (AACR2) \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{loc2023}.}
+\end{quadro}
+
+\begin{quadro}[htb]
+    \centering
+    \caption{Posições do campo 008 preenchidas pelo Cataloga+}
+    \label{qua:marc-008}
+    \footnotesize
+    \begin{tabular}{|p{0.12\textwidth}|p{0.36\textwidth}|p{0.40\textwidth}|}
+        \hline
+        \textbf{Posição} & \textbf{Significado} & \textbf{Valor gerado} \\ \hline
+        00--05 & Data de entrada no arquivo & Data da geração (AAMMDD) \\ \hline
+        06 & Tipo de data & s (data única) ou n (desconhecida) \\ \hline
+        07--10 & Data de publicação & Ano informado ou uuuu \\ \hline
+        15--17 & Local de publicação & bl (Brasil) para ISBN brasileiro; xx nos demais casos \\ \hline
+        23 & Forma do item & o (\textit{on-line}) para livros digitais; em branco para impressos \\ \hline
+        29--31 & Evento, homenagem e índice & 0 (não) \\ \hline
+        35--37 & Idioma & por (português) para ISBN brasileiro; und (indeterminado) nos demais \\ \hline
+        39 & Fonte da catalogação & d (outra fonte) \\ \hline
+    \end{tabular}
+    \fonte{Elaborado pelo autor com base em \citeonline{loc2023}.}
+\end{quadro}
+
+\subsection{Lendo um registro MARC 21}
+\label{subsec:marc-leitura}
+
+As diferenças entre os códigos de catalogação refletem-se diretamente nos campos MARC utilizados. O \autoref{qua:marc-dom-casmurro} apresenta a mesma obra descrita segundo o RDA e segundo o AACR2: no primeiro, os dados de publicação ocupam o campo 264 e os tipos de conteúdo, mídia e suporte ocupam os campos 336 a 338; no segundo, a publicação é registrada no campo 260, a extensão é abreviada e os campos 336 a 338 não existem.
+
+\begin{quadro}[htb]
+    \caption{Registro de \textit{Dom Casmurro} em MARC 21 segundo o RDA e o AACR2 (simplificado)}
+    \label{qua:marc-dom-casmurro}
+    \footnotesize
+    \textbf{RDA}
+\begin{verbatim}
+100 1# $a Assis, Machado de, $d 1839-1908.
+245 10 $a Dom Casmurro / $c Machado de Assis.
+264 #1 $a Rio de Janeiro : $b Garnier, $c 1899.
+300 ## $a 256 páginas.
+336 ## $a texto $b txt $2 rdacontent
+337 ## $a não mediado $b n $2 rdamedia
+338 ## $a volume $b nc $2 rdacarrier
+\end{verbatim}
+    \textbf{AACR2}
+\begin{verbatim}
+100 1# $a Assis, Machado de, $d 1839-1908.
+245 10 $a Dom Casmurro / $c Machado de Assis.
+260 ## $a Rio de Janeiro : $b Garnier, $c 1899.
+300 ## $a 256 p.
+\end{verbatim}
+    \fonte{Elaborado pelo autor com base em \citeonline{loc2023}.}
+\end{quadro}
+
+Tomando como exemplo a linha \texttt{245 10 \$a Dom Casmurro / \$c Machado de Assis.}, sua leitura é a seguinte: a etiqueta 245 indica o campo de título; o primeiro indicador (1) informa que o título também deve gerar um ponto de acesso, já que existe um autor principal no campo 100; o segundo indicador (0) informa que nenhum caractere inicial deve ser desconsiderado na ordenação, pois o título não começa com artigo; o subcampo \$a contém o título principal e o subcampo \$c, a indicação de responsabilidade, precedida da barra prescrita pela ISBD. Do mesmo modo, a linha 100 registra o ponto de acesso do autor na forma invertida, acompanhado, no subcampo \$d, de suas datas de nascimento e morte.
+
+\subsection{O padrão de intercâmbio ISO 2709}
+\label{subsec:iso2709}
+
+A notação utilizada no \autoref{qua:marc-dom-casmurro}, com uma linha por campo, é uma forma de exibição para leitura humana. Para que os registros MARC possam ser transferidos entre sistemas, utiliza-se a norma ISO 2709, que especifica um formato genérico de intercâmbio para registros bibliográficos sem definir o significado de seus campos, função atribuída ao formato de implementação, como o MARC 21 \cite{iso2709}. Na ISO 2709, cada registro é composto por um líder de 24 caracteres, que informa, entre outros dados, o tamanho do registro e o endereço de início dos dados; por um diretório, que funciona como um índice e lista a etiqueta, o tamanho e a posição de cada campo; e pelos campos propriamente ditos, separados por caracteres terminadores. Um arquivo com extensão \texttt{.mrc} nada mais é do que uma sequência de registros nesse formato, o que permite que um único arquivo transporte um registro ou um lote inteiro. É justamente esse arquivo que o Cataloga+ produz e que os SIGBs recebem em suas rotinas de importação.
+
+% -----------------------------------------------------------------------------
+\section{O ISBN como identificador da manifestação}
+\label{sec:isbn}
+
+O ISBN (\textit{International Standard Book Number}) é um identificador numérico único atribuído a publicações monográficas, criado na década de 1970 e normalizado pela ISO \cite{isbn2017}. Desde 2007 é composto por treze dígitos, organizados em cinco elementos: o prefixo (978 ou 979); o grupo de registro, que identifica um país, região ou área linguística; o elemento do editor; o elemento da publicação; e o dígito verificador, calculado a partir dos demais para detectar erros de digitação \cite{isbn2017}. No Brasil, a atribuição do ISBN é realizada pela Câmara Brasileira do Livro (CBL), e as publicações brasileiras utilizam os grupos de registro 65 e 85 \cite{cbl2021}.
+
+À luz do modelo FRBR, o ISBN identifica uma manifestação: cada edição, formato ou reimpressão com alterações recebe um número próprio \cite{ifla1998frbr}. Essa característica torna o ISBN um ponto de partida adequado para a catalogação descritiva, que descreve justamente a manifestação que o bibliotecário tem em mãos. Além disso, sua difusão no mercado editorial faz com que os dados de uma obra estejam disponíveis em diversas bases --- de agências, editoras, livrarias e catálogos coletivos --- indexadas pelo mesmo número. É a partir dele que o Cataloga+ consulta as fontes externas, o que permite ainda identificar automaticamente, pelo grupo de registro, as publicações brasileiras e preencher os códigos de país e idioma do campo 008.
+
+% -----------------------------------------------------------------------------
+\section{Sistemas Integrados de Gestão de Bibliotecas e interoperabilidade}
+\label{sec:sigb}
+
+No contexto brasileiro, as instituições que dispõem de acervos bibliográficos utilizam, de forma recorrente, sistemas informatizados para o gerenciamento de suas informações \cite{corte2002}. Os SIGBs reúnem, em módulos integrados, as atividades de aquisição, catalogação, circulação e consulta pública ao catálogo, esta última oferecida por meio do OPAC (\textit{Online Public Access Catalog}, ou Catálogo Público de Acesso em Linha), contribuindo para a redução de custos operacionais e para o aumento da eficiência dos serviços \cite{lancaster2004}. Há no mercado tanto soluções proprietárias, como Sophia, Pergamum e Aleph, que em geral oferecem suporte técnico especializado, quanto softwares livres, como Koha e Biblivre, caracterizados pela ausência de custos de licenciamento e pelo suporte baseado em comunidades \cite{breeding2015,tammaro2008}.
+
+Embora difiram em funcionalidades e público-alvo, esses sistemas compartilham dois aspectos relevantes para este trabalho. O primeiro é que a catalogação neles permanece, em essência, um processo manual de preenchimento de formulários, ainda que apoiado por modelos e pela importação de registros \cite{mey2009}. O segundo é que todos aceitam a importação de registros em MARC 21 no formato ISO 2709, o que torna esse formato o ponto de contato natural entre uma ferramenta externa e o catálogo da biblioteca. O Cataloga+ explora esse ponto de contato: em vez de integrar-se a um sistema específico, gera arquivos que qualquer SIGB compatível com MARC 21 pode importar.
+
+O compartilhamento de registros entre sistemas é objeto de preocupação antiga da área. Bibliotecas, arquivos e museus têm em comum a missão de preservar e difundir seus acervos, mas diferem em procedimentos, tradições e formas de descrição, o que torna sua integração um desafio \cite{marcondes2016}. Para enfrentá-lo, foram desenvolvidos padrões como o próprio formato MARC e o protocolo Z39.50, que permite a um sistema consultar e recuperar registros de catálogos remotos por meio de uma interface comum \cite{moen1998,rosetto1997}. O Z39.50 viabilizou a catalogação cooperativa entre redes de bibliotecas, mas seu uso depende de servidores configurados e de catálogos que já contenham o registro procurado. Ainda assim, a interoperabilidade nem sempre se concretiza, seja por limitações tecnológicas, seja por diferenças na adoção das normas, o que gera retrabalho e inconsistências entre registros \cite{ifla2009}.
+
+% -----------------------------------------------------------------------------
+\section{Fontes de metadados bibliográficos na web}
+\label{sec:fontes}
+
+Paralelamente às redes de catalogação cooperativa, ampliou-se a oferta de metadados bibliográficos por meio de APIs públicas na web. Diferentemente dos catálogos de bibliotecas, essas fontes não são produzidas segundo códigos de catalogação, mas reúnem dados fornecidos por editoras, agências de ISBN, livrarias e comunidades de usuários, consultáveis por qualquer aplicação a partir do ISBN. Entre as fontes relevantes para o contexto brasileiro destacam-se:
+
+\begin{itemize}
+    \item a base da CBL, agência brasileira do ISBN, que reúne os dados informados pelos editores no momento do registro da publicação \cite{cbl2021};
+    \item a Open Library, catálogo aberto mantido pelo Internet Archive, que oferece dados de edições e obras, incluindo edição, número de páginas, assuntos e capas \cite{openlibrary};
+    \item o Google Books, que disponibiliza informações de catálogo e descrições de milhões de obras \cite{googlebooks};
+    \item a BrasilAPI, projeto aberto que centraliza o acesso a diversas bases de interesse público brasileiras, entre elas as da CBL e do Mercado Editorial, em uma interface única \cite{brasilapi}.
+\end{itemize}
+
+Essas fontes têm coberturas distintas e nenhuma delas é completa: uma pode conter o título e a editora de uma obra, mas não sua edição ou número de páginas, enquanto outra apresenta a situação inversa. Além disso, os dados podem conter erros, inconsistências de grafia e assuntos em idiomas diversos. Por isso, a consulta a várias fontes e a consolidação de seus resultados ampliam a completude do registro, mas não dispensam a revisão do bibliotecário, que confronta os dados recuperados com a obra em mãos e os adequa às regras de catalogação. Esse equilíbrio entre automação da coleta e controle humano da descrição constitui o princípio da catalogação assistida que orienta o Cataloga+.
