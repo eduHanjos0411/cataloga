@@ -1,4 +1,4 @@
-import type { BatchItem } from "../../hooks/useBookSearch";
+import type { BatchItem, BatchRun } from "../../hooks/useBookSearch";
 import "./BatchPager.css";
 
 // Páginas vizinhas exibidas de cada lado da página atual
@@ -23,19 +23,39 @@ function visiblePages(total: number, current: number): (number | "gap")[] {
 function pageTitle(item: BatchItem): string {
   if (item.status === "loading") return `ISBN ${item.isbn} (buscando)`;
   if (item.status === "error") return `ISBN ${item.isbn}: ${item.error}`;
-  return item.book?.title || `ISBN ${item.isbn}`;
+  const title = item.book?.title || `ISBN ${item.isbn}`;
+  return item.failedProviders ? `${title} (sem resposta de: ${item.failedProviders.join(", ")})` : title;
+}
+
+/** Tempo da última rodada de buscas, usado para medir o processamento do lote. */
+function runSummary(run: BatchRun, failedCount: number): string {
+  const isbns = `${run.count} ${run.count === 1 ? "ISBN" : "ISBNs"}`;
+  if (run.finishedAt === undefined) return `Buscando ${isbns}…`;
+
+  const seconds = ((run.finishedAt - run.startedAt) / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+  const failures = failedCount > 0 ? ` · ${failedCount} com fonte sem resposta` : "";
+  return `Última busca: ${isbns} em ${seconds} s${failures}`;
 }
 
 type BatchPagerProps = {
   items: BatchItem[];
+  lastRun?: BatchRun;
   currentIndex: number;
   onPageChange: (index: number) => void;
   onExportBatch: () => void;
   onClearBatch: () => void;
 };
 
-export function BatchPager({ items, currentIndex, onPageChange, onExportBatch, onClearBatch }: BatchPagerProps) {
+export function BatchPager({
+  items,
+  lastRun,
+  currentIndex,
+  onPageChange,
+  onExportBatch,
+  onClearBatch,
+}: BatchPagerProps) {
   const foundCount = items.filter((item) => item.status === "found").length;
+  const failedCount = items.filter((item) => item.failedProviders).length;
 
   return (
     <nav className="panel batch-pager" aria-label="Documentos do lote">
@@ -82,6 +102,11 @@ export function BatchPager({ items, currentIndex, onPageChange, onExportBatch, o
         <span className="pager-summary">
           {foundCount} de {items.length} {items.length === 1 ? "documento pronto" : "documentos prontos"}
         </span>
+        {lastRun && (
+          <span className="pager-summary pager-timing" aria-live="polite">
+            {runSummary(lastRun, failedCount)}
+          </span>
+        )}
         <button type="button" className="secondary-button" onClick={onClearBatch}>
           Limpar lote
         </button>

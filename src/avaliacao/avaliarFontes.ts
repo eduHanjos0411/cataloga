@@ -21,7 +21,7 @@ export const CAMPOS = [
   ["paginas", "Páginas", "pageCount"],
   ["altura", "Altura", "height"],
   ["formato", "Formato", "format"],
-  ["preco", "Preço", "price"],
+  ["idioma", "Idioma", "language"],
   ["sinopse", "Sinopse", "synopsis"],
   ["assuntos", "Assuntos", "subjects"],
   ["capa", "Capa", "coverUrl"],

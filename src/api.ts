@@ -46,7 +46,7 @@ const FILLABLE_FIELDS = [
   "synopsis",
   "height",
   "format",
-  "price",
+  "language",
   "coverUrl",
 ] as const;
 
@@ -79,7 +79,8 @@ export type ProviderResponse =
   | { status: "not-found" | "error" | "timeout" };
 
 export type BookSearchResult =
-  | { status: "found"; book: BookFormState }
+  // failedProviders: fontes que falharam ou excederam o tempo limite, mesmo com a obra encontrada
+  | { status: "found"; book: BookFormState; failedProviders: Provider[] }
   | { status: "not-found" | "invalid-isbn" | "unavailable" };
 
 /** Consulta um único provedor; erro e estouro do tempo limite contam como falha do provedor. */
@@ -145,10 +146,10 @@ export async function fetchBookData(isbn: string, provider?: Provider): Promise<
   );
 
   const book = consolidateBooks(books);
-  if (!book) {
-    const failed = responses.some((response) => response.status === "error" || response.status === "timeout");
-    return { status: failed ? "unavailable" : "not-found" };
-  }
+  const failedProviders = priority.filter(
+    (_, index) => responses[index].status === "error" || responses[index].status === "timeout",
+  );
+  if (!book) return { status: failedProviders.length > 0 ? "unavailable" : "not-found" };
 
-  return { status: "found", book };
+  return { status: "found", book, failedProviders };
 }

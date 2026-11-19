@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchBookData, type BookSearchResult, type Provider } from "../api";
-import { formatIsbn, type BookFormState } from "../utils/bookUtils";
+import { formatIsbn, isValidIsbn, type BookFormState } from "../utils/bookUtils";
 
 export type ProviderOption = Provider | "auto";
 
@@ -10,7 +10,18 @@ export type BatchItem = {
   status: "loading" | "found" | "error";
   book?: BookFormState;
   error?: string;
+  // Fontes que falharam ou excederam o tempo limite, mesmo com a obra encontrada
+  failedProviders?: Provider[];
 };
+
+/** Medição de uma rodada de buscas: do primeiro ISBN enviado até o último concluído. */
+export type BatchRun = {
+  count: number;
+  startedAt: number;
+  finishedAt?: number;
+};
+
+type QueuedSearch = { id: string; isbn: string; provider?: Provider };
 
 const SEARCH_ERROR_MESSAGES: Record<Exclude<BookSearchResult["status"], "found">, string> = {
   "not-found": "Livro não encontrado.",
@@ -23,19 +34,44 @@ const MAX_CONCURRENT_SEARCHES = 3;
 
 const STORAGE_KEY = "cataloga:lote";
 
-type StoredBatch = { items: BatchItem[]; currentId?: string };
+// Versão 2: autores sempre separados por ";" (antes, nomes na forma direta vinham separados por ",")
+const STORAGE_VERSION = 2;
+
+type StoredBatch = { version?: number; items: BatchItem[]; currentId?: string };
+
+/**
+ * Converte os autores de lotes salvos antes da versão 2. Sem ";", a vírgula separava autores,
+ * exceto quando havia um único autor já invertido ("SILVA, José": uma palavra antes da vírgula).
+ */
+function migrateAuthors(authors: string): string {
+  if (authors.includes(";") || !authors.includes(",")) return authors;
+
+  const parts = authors.split(",").map((part) => part.trim());
+  const singleInverted = parts.length === 2 && !/\s/.test(parts[0]);
+  return singleInverted ? authors : parts.filter(Boolean).join("; ");
+}
 
 function createId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/** Separa os ISBNs digitados (um por linha, ou separados por vírgula, ponto e vírgula ou espaço). */
-function parseIsbnList(text: string): string[] {
-  const isbns = text
-    .split(/[\s,;]+/)
-    .map(formatIsbn)
-    .filter(Boolean);
-  return [...new Set(isbns)];
+/**
+ * Separa os ISBNs digitados: um por linha, ou separados por vírgula ou ponto e vírgula.
+ * Dentro de cada parte, espaços e hifens são ignorados quando o resultado é um ISBN válido
+ * ("978 0 14 143951 8"). O espaço só separa ISBNs quando todos os pedaços têm o tamanho de
+ * um ISBN ("9780141439518 9788508040094"); senão a parte inteira é um único número, que a
+ * busca acusa como inválido em vez de gerar um documento para cada fragmento.
+ */
+export function parseIsbnList(text: string): string[] {
+  const isbns = text.split(/[\r\n,;]+/).flatMap((part) => {
+    const joined = formatIsbn(part);
+    if (isValidIsbn(joined)) return [joined];
+
+    const pieces = part.split(/\s+/).map(formatIsbn).filter(Boolean);
+    const allIsbnSized = pieces.length > 1 && pieces.every((piece) => piece.length === 10 || piece.length === 13);
+    return allIsbnSized ? pieces : [joined];
+  });
+  return [...new Set(isbns.filter(Boolean))];
 }
 
 function loadBatch(): StoredBatch {
@@ -44,22 +80,17 @@ function loadBatch(): StoredBatch {
     if (!stored) return { items: [] };
 
     const batch = JSON.parse(stored) as StoredBatch;
-    // Buscas em andamento quando a página foi fechada não serão concluídas
-    const items = batch.items.map((item): BatchItem =>
-      item.status === "loading" ? { ...item, status: "error", error: "Busca interrompida." } : item,
-    );
+    const outdated = (batch.version ?? 1) < STORAGE_VERSION;
+    const items = batch.items.map((item): BatchItem => {
+      const migrated =
+        outdated && item.book ? { ...item, book: { ...item.book, authors: migrateAuthors(item.book.authors) } } : item;
+      // Buscas em andamento quando a página foi fechada não serão concluídas
+      return migrated.status === "loading" ? { ...migrated, status: "error", error: "Busca interrompida." } : migrated;
+    });
     return { items, currentId: batch.currentId };
   } catch {
     return { items: [] };
   }
-}
-
-async function runWithLimit<T>(values: T[], limit: number, task: (value: T) => Promise<void>) {
-  const queue = [...values];
-  const workers = Array.from({ length: Math.min(limit, queue.length) }, async () => {
-    for (let value = queue.shift(); value !== undefined; value = queue.shift()) await task(value);
-  });
-  await Promise.all(workers);
 }
 
 export function useBookSearch() {
@@ -68,10 +99,17 @@ export function useBookSearch() {
   const [initialBatch] = useState(loadBatch);
   const [items, setItems] = useState<BatchItem[]>(initialBatch.items);
   const [currentId, setCurrentId] = useState<string | undefined>(initialBatch.currentId ?? initialBatch.items[0]?.id);
+  const [lastRun, setLastRun] = useState<BatchRun>();
+
+  // Fila única para todas as buscas: o limite de consultas simultâneas vale para o lote
+  // inteiro, mesmo que várias listas sejam enviadas em seguida
+  const queueRef = useRef<QueuedSearch[]>([]);
+  const activeRef = useRef(0);
+  const runRef = useRef<BatchRun | undefined>(undefined);
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, currentId } satisfies StoredBatch));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: STORAGE_VERSION, items, currentId } satisfies StoredBatch));
     } catch {
       // Sem armazenamento disponível o lote vale apenas para a sessão atual
     }
@@ -88,18 +126,46 @@ export function useBookSearch() {
     setItems((current) => current.map((item) => (item.id === id ? { ...item, ...changes } : item)));
   }
 
-  async function searchItems(targets: BatchItem[]) {
-    const chosenProvider = provider === "auto" ? undefined : provider;
+  async function runSearch({ id, isbn: value, provider: chosenProvider }: QueuedSearch) {
+    const result = await fetchBookData(value, chosenProvider);
+    updateItem(
+      id,
+      result.status === "found"
+        ? {
+            status: "found",
+            book: result.book,
+            error: undefined,
+            failedProviders: result.failedProviders.length > 0 ? result.failedProviders : undefined,
+          }
+        : { status: "error", error: SEARCH_ERROR_MESSAGES[result.status], failedProviders: undefined },
+    );
+  }
 
-    await runWithLimit(targets, MAX_CONCURRENT_SEARCHES, async (item) => {
-      const result = await fetchBookData(item.isbn, chosenProvider);
-      updateItem(
-        item.id,
-        result.status === "found"
-          ? { status: "found", book: result.book, error: undefined }
-          : { status: "error", error: SEARCH_ERROR_MESSAGES[result.status] },
-      );
-    });
+  function pumpQueue() {
+    while (activeRef.current < MAX_CONCURRENT_SEARCHES && queueRef.current.length > 0) {
+      const next = queueRef.current.shift()!;
+      activeRef.current += 1;
+      void runSearch(next).finally(() => {
+        activeRef.current -= 1;
+        if (activeRef.current === 0 && queueRef.current.length === 0 && runRef.current) {
+          const finished = { ...runRef.current, finishedAt: Date.now() };
+          runRef.current = undefined;
+          setLastRun(finished);
+        }
+        pumpQueue();
+      });
+    }
+  }
+
+  function enqueue(targets: BatchItem[]) {
+    const chosenProvider = provider === "auto" ? undefined : provider;
+    // Uma nova rodada começa quando não há buscas em andamento
+    runRef.current ??= { count: 0, startedAt: Date.now() };
+    runRef.current.count += targets.length;
+    setLastRun({ ...runRef.current });
+
+    queueRef.current.push(...targets.map((item) => ({ id: item.id, isbn: item.isbn, provider: chosenProvider })));
+    pumpQueue();
   }
 
   /** Adiciona ao lote os ISBNs digitados e busca os dados de cada um. Retorna false se nenhum ISBN foi digitado. */
@@ -118,16 +184,16 @@ export function useBookSearch() {
     if (newItems.length === 0) return true;
 
     setItems((current) => [...current, ...newItems]);
-    void searchItems(newItems);
+    enqueue(newItems);
     return true;
   }
 
-  async function retry(id: string) {
+  function retry(id: string) {
     const item = items.find((candidate) => candidate.id === id);
     if (!item) return;
 
     updateItem(id, { status: "loading", error: undefined });
-    await searchItems([item]);
+    enqueue([item]);
   }
 
   function remove(id: string) {
@@ -139,8 +205,11 @@ export function useBookSearch() {
   }
 
   function clearBatch() {
+    // Buscas ainda na fila não precisam mais ser feitas
+    queueRef.current = [];
     setItems([]);
     setCurrentId(undefined);
+    setLastRun(undefined);
   }
 
   function goToPage(index: number) {
@@ -164,6 +233,7 @@ export function useBookSearch() {
     currentItem,
     currentIndex,
     isLoading,
+    lastRun,
     search,
     retry,
     remove,

@@ -7,5 +7,6 @@ export function downloadFile(content: string, fileName: string, type: string) {
   link.download = fileName;
   link.click();
 
-  URL.revokeObjectURL(url);
+  // Revogar no mesmo instante pode cancelar o download em alguns navegadores (Firefox, Safari)
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

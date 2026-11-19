@@ -15,7 +15,8 @@ export type BookFormState = {
   // Altura em centímetros
   height?: number;
   format?: string;
-  price?: { currency: string; amount: number };
+  // Código de idioma MARC de três letras ("por", "eng"), usado no 008/35-37
+  language?: string;
   coverUrl?: string;
 };
 
@@ -58,21 +59,36 @@ function normalizeHeight(dimensions: unknown): number | undefined {
   return unit === "INCH" ? value * 2.54 : value;
 }
 
-function normalizePrice(retailPrice: unknown): BookFormState["price"] {
-  if (!retailPrice || typeof retailPrice !== "object") return undefined;
+// Códigos ISO 639-1 (Google Books) convertidos para os códigos de idioma do MARC 21
+const ISO_TO_MARC_LANGUAGE: Record<string, string> = {
+  pt: "por",
+  en: "eng",
+  es: "spa",
+  fr: "fre",
+  de: "ger",
+  it: "ita",
+  la: "lat",
+  ja: "jpn",
+  zh: "chi",
+  ru: "rus",
+};
 
-  const { currency, amount } = retailPrice as Record<string, unknown>;
-  const value = Number(amount);
-  if (!(value > 0)) return undefined;
-
-  return { currency: String(currency ?? "BRL"), amount: value };
+/** Código de idioma MARC (três letras) a partir de "por", "/languages/por" ou "pt". */
+export function normalizeLanguage(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const code = value.trim().toLowerCase().replace(/^\/languages\//, "").split("-")[0];
+  if (/^[a-z]{3}$/.test(code)) return code;
+  return ISO_TO_MARC_LANGUAGE[code];
 }
 
 export function normalizeBookData(apiData: Record<string, unknown> | null, fallbackIsbn = ""): BookFormState {
   const authorsValue = apiData?.authors;
-  // Nomes já invertidos ("SILVA, José") são separados por ";" para não ficarem ambíguos
+  // Autores separados sempre por ";": a vírgula faz parte dos nomes invertidos ("SILVA, José")
   const normalizedAuthors = Array.isArray(authorsValue)
-    ? authorsValue.join(authorsValue.some((author) => String(author).includes(",")) ? "; " : ", ")
+    ? authorsValue
+        .map((author) => String(author).trim())
+        .filter(Boolean)
+        .join("; ")
     : typeof authorsValue === "string"
       ? authorsValue
       : "";
@@ -100,7 +116,7 @@ export function normalizeBookData(apiData: Record<string, unknown> | null, fallb
     subjects: subjects.length > 0 ? subjects : undefined,
     height: normalizeHeight(apiData?.dimensions),
     format: optionalString(apiData?.format),
-    price: normalizePrice(apiData?.retail_price),
+    language: normalizeLanguage(apiData?.language),
     coverUrl: optionalString(apiData?.cover_url),
   };
 }

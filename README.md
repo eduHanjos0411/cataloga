@@ -18,7 +18,7 @@ O Cataloga+ **não substitui** o sistema da biblioteca: ele reduz a digitação 
 - **Revisão e edição** de todos os campos antes da exportação.
 - **Lote de trabalho** com navegação paginada: vários ISBNs por vez, com nova tentativa e remoção de itens. O lote fica salvo no navegador e não se perde ao recarregar a página.
 - **Padrão de descrição RDA ou AACR2**, para atender tanto sistemas atualizados quanto os que ainda operam com o AACR2.
-- **Regras de catalogação aplicadas automaticamente**: inversão de nomes de autores (incluindo termos como "Filho" e "Júnior"), caracteres desconsiderados na ordenação para artigos iniciais (245, 2º indicador), pontuação ISBD, país de publicação e idioma no campo 008 para ISBNs brasileiros.
+- **Regras de catalogação aplicadas automaticamente**: inversão de nomes de autores (incluindo termos como "Filho" e "Júnior"), caracteres desconsiderados na ordenação para artigos iniciais (245, 2º indicador), pontuação ISBD, país de publicação e idioma no campo 008 (idioma informado pela fonte ou, na falta dele, português para ISBNs brasileiros) e regra de três no AACR2 (mais de três autores: entrada pelo título, primeiro autor seguido de "... [et al.]").
 - **Pré-visualização do registro MARC** antes de exportar.
 - **Exportação** de cada registro em arquivo próprio ou de todo o lote em um único `.mrc`.
 
@@ -27,7 +27,7 @@ O Cataloga+ **não substitui** o sistema da biblioteca: ele reduz a digitação 
 | Campo | Conteúdo |
 |---|---|
 | Líder, 001, 005, 008 | Controle do registro (008 com data, país e idioma) |
-| 020 | ISBN e preço |
+| 020 | ISBN |
 | 100 / 700 | Autor principal e demais autores (forma invertida) |
 | 245 | Título, subtítulo e indicação de responsabilidade |
 | 250 | Edição |
@@ -86,10 +86,10 @@ src/
 
 ## Pendências
 
-- [ ] **Histórico de registros exportados** (RF17): manter no navegador os registros exportados nos últimos 30 dias, com opção de reabri-los para edição ou nova exportação.
+- [ ] **Histórico de registros exportados** (trabalho futuro): manter no navegador os registros exportados nos últimos 30 dias, com opção de reabri-los para edição ou nova exportação.
+- [ ] **Campo 040** (agência catalogadora, idioma e código de catalogação).
 - [ ] **Testes automatizados**, começando pela geração dos registros MARC (`marcUtils`) e pela validação de ISBN.
 - [ ] **Testes de importação documentados** no Koha e no Biblivre, nos padrões RDA e AACR2, com uma amostra fixa de ISBNs.
-- [ ] **Teste com leitor de código de barras** real.
 - [ ] **Avaliação de usabilidade** com bibliotecários.
 - [ ] **Chave da Google Books API** configurada na Vercel, para habilitar a fonte em produção.
 - [ ] **Link do site publicado** neste README.

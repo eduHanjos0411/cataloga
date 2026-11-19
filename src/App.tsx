@@ -38,6 +38,7 @@ function App() {
     currentItem,
     currentIndex,
     isLoading,
+    lastRun,
     search,
     retry,
     remove,
@@ -153,6 +154,7 @@ function App() {
           {items.length > 0 && (
             <BatchPager
               items={items}
+              lastRun={lastRun}
               currentIndex={currentIndex}
               onPageChange={goToPage}
               onExportBatch={handleExportBatch}

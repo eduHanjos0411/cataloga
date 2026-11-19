@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { BookFormState } from "../../utils/bookUtils";
-import type { CatalogingRules } from "../../utils/marcUtils";
+import { needsProbableDate, type CatalogingRules } from "../../utils/marcUtils";
 import { MarcViewer } from "../MarcViewer/MarcViewer";
 import { ParsedField } from "../fields/ParsedField";
 import { SelectField } from "../fields/SelectField";
@@ -19,10 +19,8 @@ function parsePositiveNumber(text: string): number | undefined {
   return value > 0 ? value : undefined;
 }
 
-function formatDecimal(value?: number, fractionDigits?: number): string {
-  if (value === undefined) return "";
-  const text = fractionDigits === undefined ? String(value) : value.toFixed(fractionDigits);
-  return text.replace(".", ",");
+function formatDecimal(value?: number): string {
+  return value === undefined ? "" : String(value).replace(".", ",");
 }
 
 function parseSubjects(text: string): string[] | undefined {
@@ -42,7 +40,6 @@ type BookReviewPanelProps = {
 };
 
 export function BookReviewPanel({ book, rules, onFieldChange, onExport, onRemove }: BookReviewPanelProps) {
-  const currency = book.price?.currency ?? "BRL";
   const [isMarcViewerOpen, setIsMarcViewerOpen] = useState(false);
 
   return (
@@ -63,7 +60,7 @@ export function BookReviewPanel({ book, rules, onFieldChange, onExport, onRemove
           />
 
           <TextField
-            label="Autor(es)"
+            label="Autor(es) (separados por ;)"
             span={2}
             value={book.authors}
             onChange={(value) => onFieldChange("authors", value)}
@@ -83,7 +80,8 @@ export function BookReviewPanel({ book, rules, onFieldChange, onExport, onRemove
           />
           <TextField
             label="Ano"
-            inputMode="numeric"
+            placeholder="Ex.: 2019 ou [199-?]"
+            hint={needsProbableDate(book, rules) ? "AACR2: informe uma data provável, como [199-?]" : undefined}
             value={book.year}
             onChange={(value) => onFieldChange("year", value)}
           />
@@ -111,15 +109,15 @@ export function BookReviewPanel({ book, rules, onFieldChange, onExport, onRemove
           />
 
           <TextField label="ISBN" value={book.isbn} onChange={(value) => onFieldChange("isbn", value)} />
-          <ParsedField
-            label={`Preço (${currency})`}
-            inputMode="decimal"
-            value={book.price?.amount}
-            format={(value) => formatDecimal(value, 2)}
-            parse={parsePositiveNumber}
-            onChange={(amount) => onFieldChange("price", amount ? { currency, amount } : undefined)}
+          <TextField
+            label="Idioma (código MARC)"
+            placeholder="Ex.: por"
+            maxLength={3}
+            value={book.language ?? ""}
+            onChange={(value) => onFieldChange("language", value.trim().toLowerCase() || undefined)}
           />
-          <TextField label="Provedor" value={book.provider} onChange={(value) => onFieldChange("provider", value)} />
+          {/* Apenas informativo: indica as fontes que contribuíram e não é exportado */}
+          <TextField label="Provedor" readOnly value={book.provider} onChange={() => undefined} />
           <TextField
             label="URL da capa"
             span={4}

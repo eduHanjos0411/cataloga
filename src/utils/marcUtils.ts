@@ -40,6 +40,32 @@ function getYear(book: BookFormState): string | undefined {
   return book.year.match(/\d{4}/)?.[0];
 }
 
+/**
+ * Data de publicação como o bibliotecário a informou. Sem ano exato, aceita a data provável
+ * prescrita pelo AACR2 (1.4F7), como "[199-?]" ou "[18--?]", transcrita como foi digitada.
+ */
+function getPublicationDate(book: BookFormState): string | undefined {
+  const year = getYear(book);
+  if (year) return year;
+  const typed = book.year.trim();
+  return /\d{2}/.test(typed) ? typed : undefined;
+}
+
+/** Data 1 do 008 (07-10): ano exato, ou década/século prováveis com "u" ("[199-?]" -> 199u). */
+function getField008Date(book: BookFormState): string | undefined {
+  const year = getYear(book);
+  if (year) return year;
+  const decade = book.year.match(/(\d{3})-/)?.[1];
+  if (decade) return `${decade}u`;
+  const century = book.year.match(/(\d{2})--/)?.[1];
+  return century ? `${century}uu` : undefined;
+}
+
+/** O AACR2 não admite data em branco: sem ano, o bibliotecário deve informar uma data provável. */
+export function needsProbableDate(book: BookFormState, rules: CatalogingRules): boolean {
+  return rules === "aacr2" && !getField008Date(book);
+}
+
 function isDigital(book: BookFormState): boolean {
   return book.format?.toUpperCase() === "DIGITAL";
 }
@@ -50,10 +76,9 @@ function withFinalPeriod(value: string): string {
 }
 
 function splitAuthors(authors: string): string[] {
-  // Autores no formato "SOBRENOME, Nome" vêm separados por ";" em alguns provedores
-  const separator = authors.includes(";") ? ";" : ",";
+  // Os autores são separados por ";": a vírgula pertence aos nomes invertidos ("SILVA, José")
   return authors
-    .split(separator)
+    .split(";")
     .map((author) => author.trim())
     .filter(Boolean);
 }
@@ -104,8 +129,16 @@ function buildField005(now: Date): string {
   );
 }
 
+/** Idioma informado no formulário; na falta dele, "por" para ISBNs brasileiros. */
+function getLanguage(book: BookFormState): string {
+  const language = book.language?.trim().toLowerCase();
+  if (language && /^[a-z]{3}$/.test(language)) return language;
+  return isBrazilian(book.isbn) ? "por" : "und";
+}
+
 function buildField008(book: BookFormState, now: Date): string {
-  const year = getYear(book);
+  // Data exata ou provável ("199u"); "s" vale para as duas, segundo o MARC 21
+  const year = getField008Date(book);
   const brazilian = isBrazilian(book.isbn);
 
   const field =
@@ -125,7 +158,7 @@ function buildField008(book: BookFormState, now: Date): string {
     " " + // 32 indefinido
     "|" + // 33 forma literária (não codificada)
     " " + // 34 biografia
-    (brazilian ? "por" : "und") + // 35-37 idioma
+    getLanguage(book) + // 35-37 idioma
     " " + // 38 registro modificado
     "d"; // 39 fonte da catalogação
 
@@ -136,20 +169,26 @@ function buildField020(book: BookFormState): MarcField | null {
   const isbn = formatIsbn(book.isbn);
   if (!isbn) return null;
 
-  const field = ["020", "  ", "a", isbn];
-  if (book.price) {
-    const amount = book.price.amount.toFixed(2).replace(".", ",");
-    const currency = book.price.currency === "BRL" ? "R$" : book.price.currency;
-    field.push("c", `${currency} ${amount}`);
-  }
-  return field;
+  return ["020", "  ", "a", isbn];
+}
+
+// Regra de três do AACR2 (1.1F5 e 21.6C2): com mais de três autores, a entrada principal
+// passa a ser o título, e só o primeiro autor é mencionado, seguido de "... [et al.]"
+const AACR2_MAX_AUTHORS = 3;
+
+function appliesRuleOfThree(authors: string[], rules: CatalogingRules): boolean {
+  return rules === "aacr2" && authors.length > AACR2_MAX_AUTHORS;
 }
 
 function buildField245(book: BookFormState, authors: string[], rules: CatalogingRules): MarcField {
   const title = book.title.trim() || "[Sem título]";
-  const ind1 = authors.length > 0 ? "1" : "0";
+  const ruleOfThree = appliesRuleOfThree(authors, rules);
+  // 1º indicador: 1 quando há entrada principal de autor (campo 100)
+  const ind1 = authors.length > 0 && !ruleOfThree ? "1" : "0";
   const ind2 = nonFilingCharacters(title);
-  const responsibility = authors.map(directName).join(", ");
+  const responsibility = ruleOfThree
+    ? `${directName(authors[0])} ... [et al.]`
+    : authors.map(directName).join(", ");
 
   const subfields: [string, string][] = [["a", title]];
   // Designação geral do material (AACR2); no RDA ela é substituída pelos campos 336-338
@@ -172,18 +211,24 @@ function buildField245(book: BookFormState, authors: string[], rules: Cataloging
 function buildField264(book: BookFormState): MarcField {
   const place = book.location || "[Local de publicação não identificado]";
   const publisher = book.publisher.trim() || "[editora não identificada]";
-  const year = getYear(book) ?? "[data de publicação não identificada]";
+  const year = getPublicationDate(book) ?? "[data de publicação não identificada]";
 
   return ["264", " 1", "a", `${place} :`, "b", `${publisher},`, "c", withFinalPeriod(year)];
 }
 
-/** Publicação no AACR2 (260), com as abreviaturas latinas para dados desconhecidos. */
+/**
+ * Publicação no AACR2 (260), com [S.l.] e [s.n.] para local e editor desconhecidos (1.4C6 e 1.4D7).
+ * Para a data, o AACR2 (1.4F7) não admite "[s.d.]": exige uma data provável, que só o
+ * bibliotecário pode informar. Sem ela, o $c fica de fora e o formulário avisa da pendência.
+ */
 function buildField260(book: BookFormState): MarcField {
   const place = book.location || "[S.l.]";
   const publisher = book.publisher.trim() || "[s.n.]";
-  const year = getYear(book) ?? "[s.d.]";
+  const date = getPublicationDate(book);
 
-  return ["260", "  ", "a", `${place} :`, "b", `${publisher},`, "c", withFinalPeriod(year)];
+  return date
+    ? ["260", "  ", "a", `${place} :`, "b", `${publisher},`, "c", withFinalPeriod(date)]
+    : ["260", "  ", "a", `${place} :`, "b", withFinalPeriod(publisher)];
 }
 
 function buildField300(book: BookFormState, rules: CatalogingRules): MarcField {
@@ -220,7 +265,10 @@ export function buildMarcRecord(book: BookFormState, rules: CatalogingRules = "r
   const rda = rules === "rda";
 
   const authors = splitAuthors(book.authors);
-  const [mainAuthor, ...addedAuthors] = authors;
+  // Pela regra de três (AACR2), não há campo 100 e só o primeiro autor recebe entrada secundária (700)
+  const ruleOfThree = appliesRuleOfThree(authors, rules);
+  const mainAuthor = ruleOfThree ? undefined : authors[0];
+  const addedAuthors = ruleOfThree ? authors.slice(0, 1) : authors.slice(1);
 
   const fields: (MarcField | null)[] = [
     ["001", formatIsbn(book.isbn)],

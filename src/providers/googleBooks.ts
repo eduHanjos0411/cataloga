@@ -15,13 +15,11 @@ type VolumeInfo = {
   description?: string;
   pageCount?: number;
   categories?: string[];
+  language?: string;
   imageLinks?: { thumbnail?: string; smallThumbnail?: string };
 };
 
-type Volume = {
-  volumeInfo?: VolumeInfo;
-  saleInfo?: { listPrice?: { amount?: number; currencyCode?: string } };
-};
+type Volume = { volumeInfo?: VolumeInfo };
 
 /** Dados do Google Books convertidos para o formato da BrasilAPI. */
 export async function fetchFromGoogleBooks(isbn: string, signal: AbortSignal): Promise<Record<string, unknown> | null> {
@@ -36,7 +34,6 @@ export async function fetchFromGoogleBooks(isbn: string, signal: AbortSignal): P
   const info = volume?.volumeInfo;
   if (!info) return null;
 
-  const price = volume.saleInfo?.listPrice;
   // A API devolve as capas em http; o navegador bloquearia conteúdo misto
   const cover = (info.imageLinks?.thumbnail ?? info.imageLinks?.smallThumbnail)?.replace(/^http:/, "https:");
 
@@ -49,7 +46,7 @@ export async function fetchFromGoogleBooks(isbn: string, signal: AbortSignal): P
     page_count: info.pageCount,
     subjects: info.categories ?? [],
     synopsis: info.description,
-    retail_price: price?.amount ? { amount: price.amount, currency: price.currencyCode } : undefined,
+    language: info.language,
     cover_url: cover,
     provider: "google-books",
   };

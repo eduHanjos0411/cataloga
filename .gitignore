@@ -42,6 +42,9 @@ coverage
 # Claude Code (configurações locais)
 .claude/settings.local.json
 
+# Documentação TCC (arquivos locais, não versionados)
+docs/
+
 # Sistema operacional (Windows / OneDrive / macOS)
 Thumbs.db
 desktop.ini

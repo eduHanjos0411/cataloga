@@ -8,14 +8,21 @@ export type FieldProps = {
   // Quantidade de colunas ocupadas no grid do formulário
   span?: FieldSpan;
   className?: string;
+  // Aviso exibido abaixo do campo (ex.: dado obrigatório pelo padrão de catalogação)
+  hint?: string;
   children: ReactNode;
 };
 
-export function Field({ label, span = 1, className = "", children }: FieldProps) {
+export function Field({ label, span = 1, className = "", hint, children }: FieldProps) {
   return (
     <label className={`field span-${span} ${className}`.trim()}>
       <span>{label}</span>
       {children}
+      {hint && (
+        <small className="field-hint" role="status">
+          {hint}
+        </small>
+      )}
     </label>
   );
 }

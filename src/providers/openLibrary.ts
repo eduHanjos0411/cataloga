@@ -1,6 +1,6 @@
 // Consulta direta à Open Library (https://openlibrary.org/dev/docs/api/books), sem chave.
 // "jscmd=data" traz autores, assuntos e capa já resolvidos; "jscmd=details" traz o registro
-// da edição (edição, formato, dimensões, descrição). As duas consultas são feitas em paralelo.
+// da edição (edição, formato, dimensões, descrição, idioma). As duas consultas são feitas em paralelo.
 
 const BASE_URL = "https://openlibrary.org/api/books";
 
@@ -68,6 +68,8 @@ export async function fetchFromOpenLibrary(isbn: string, signal: AbortSignal): P
     format: parseFormat(edition.physical_format),
     dimensions: parseDimensions(edition.physical_dimensions),
     synopsis: parseDescription(edition.description),
+    // Códigos de idioma do MARC 21 ("/languages/por"); o primeiro é o da edição
+    language: (edition.languages as { key?: string }[] | undefined)?.[0]?.key,
     cover_url: cover?.large ?? cover?.medium,
     provider: "open-library",
   };
