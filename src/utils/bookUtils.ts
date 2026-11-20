@@ -87,7 +87,8 @@ export function normalizeBookData(apiData: Record<string, unknown> | null, fallb
   const normalizedAuthors = Array.isArray(authorsValue)
     ? authorsValue
         .map((author) => String(author).trim())
-        .filter(Boolean)
+        // Marcadores das fontes, como "[author not identified]" (Open Library), não são autores
+        .filter((author) => author && !/^\[.*\]$/.test(author))
         .join("; ")
     : typeof authorsValue === "string"
       ? authorsValue
